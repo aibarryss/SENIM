@@ -1,0 +1,69 @@
+export type UserRole = 'donor' | 'susn' | 'partner';
+
+export type CampaignCategory = 'grocery' | 'medicine' | 'winter' | 'education';
+
+export type CampaignUrgency = 'urgent' | 'high_priority' | 'verified' | null;
+
+export type CampaignStatus = 'active' | 'funded' | 'completed';
+
+export interface Campaign {
+  id: string;
+  title: string;
+  description: string;
+  category: CampaignCategory;
+  region: string;
+  goal_amount: number;
+  raised_amount: number;
+  urgency: CampaignUrgency;
+  status: CampaignStatus;
+  image_url: string | null;
+  partner_id: string | null;
+  created_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  type: 'voucher_redemption' | 'medicine_purchase' | 'utility_payment';
+  voucher_number: string | null;
+  store_name: string;
+  city: string;
+  amount: number;
+  created_at: string;
+}
+
+export interface PlatformStats {
+  id: number;
+  food_baskets_today: number;
+  verified_aid_almaty: number;
+  active_qr_vouchers: number;
+  families_helped: number;
+  partner_retailers: number;
+}
+
+export interface Partner {
+  id: string;
+  name: string;
+  type: string;
+  city: string;
+  logo_letter: string;
+  logo_color: string;
+}
+
+export interface Profile {
+  id: string;
+  role: UserRole;
+  display_name: string | null;
+  phone: string | null;
+  verified: boolean;
+  created_at: string;
+}
+
+export interface DonationIntent {
+  id: string;
+  donor_id: string;
+  campaign_id: string | null;
+  amount: number;
+  payment_type: 'full' | 'partial' | 'subscription';
+  status: 'pending' | 'confirmed' | 'rejected';
+  created_at: string;
+}
