@@ -3,7 +3,7 @@ import { X, User, Heart, Store, Upload, CheckCircle, FileText } from 'lucide-rea
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
-import type { UserRole } from '@/lib/types';
+import type { UserRole, PartnerStoreType } from '@/lib/types';
 
 interface AuthModalProps {
   open: boolean;
@@ -20,9 +20,13 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [storeName, setStoreName] = useState('');
+  const [storeType, setStoreType] = useState<PartnerStoreType>('supermarket');
+  const [storeCity, setStoreCity] = useState('');
+  const [storeAddress, setStoreAddress] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [successKind, setSuccessKind] = useState<'created' | 'pending'>('created');
+  const [successKind, setSuccessKind] = useState<'created' | 'pending' | 'partner'>('created');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +38,10 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     setPassword('');
     setName('');
     setPhone('');
+    setStoreName('');
+    setStoreType('supermarket');
+    setStoreCity('');
+    setStoreAddress('');
     setSelectedFile(null);
     setUploading(false);
     setSuccessKind('created');
@@ -113,6 +121,25 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       }
       setUploading(false);
       setSuccessKind('pending');
+    } else if (role === 'partner' && user) {
+      // Insert a real partner application with store details. Status is
+      // 'pending' and can only be transitioned by a service-role backend
+      // process (admin review tool / Edge Function). No review window is
+      // promised in the UI because no automated review exists yet.
+      const { error: insertError } = await supabase.from('partner_applications').insert({
+        user_id: user.id,
+        store_name: storeName,
+        store_type: storeType,
+        city: storeCity,
+        address: storeAddress,
+        status: 'pending',
+      });
+      if (insertError) {
+        setError(t('auth.partnerApplicationError'));
+        setLoading(false);
+        return;
+      }
+      setSuccessKind('partner');
     } else {
       setSuccessKind('created');
     }
@@ -312,8 +339,54 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               )}
 
               {role === 'partner' && (
-                <div className="p-4 rounded-xl bg-surface-container-low text-[14px] text-on-surface-variant">
-                  {t('auth.partnerReview')}
+                <div className="p-4 rounded-xl border border-outline-variant bg-surface-container-low space-y-3">
+                  <p className="text-[14px] text-on-surface-variant">
+                    {t('auth.partnerReview')}
+                  </p>
+                  <div>
+                    <label className="block text-[14px] font-semibold mb-2">{t('auth.partnerStoreName')}</label>
+                    <input
+                      type="text"
+                      required
+                      value={storeName}
+                      onChange={(e) => setStoreName(e.target.value)}
+                      className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[14px] font-semibold mb-2">{t('auth.partnerStoreType')}</label>
+                    <select
+                      required
+                      value={storeType}
+                      onChange={(e) => setStoreType(e.target.value as PartnerStoreType)}
+                      className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none bg-surface-container-lowest"
+                    >
+                      <option value="supermarket">{t('auth.partnerStoreTypeOptions.supermarket')}</option>
+                      <option value="pharmacy">{t('auth.partnerStoreTypeOptions.pharmacy')}</option>
+                      <option value="clothing">{t('auth.partnerStoreTypeOptions.clothing')}</option>
+                      <option value="education">{t('auth.partnerStoreTypeOptions.education')}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[14px] font-semibold mb-2">{t('auth.partnerCity')}</label>
+                    <input
+                      type="text"
+                      required
+                      value={storeCity}
+                      onChange={(e) => setStoreCity(e.target.value)}
+                      className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[14px] font-semibold mb-2">{t('auth.partnerAddress')}</label>
+                    <input
+                      type="text"
+                      required
+                      value={storeAddress}
+                      onChange={(e) => setStoreAddress(e.target.value)}
+                      className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -339,11 +412,16 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 <CheckCircle size={32} className="text-secondary" />
               </div>
               <h3 className="text-lg font-bold text-primary">
-                {successKind === 'pending' ? t('auth.verificationPending') : t('auth.accountCreated')}
+                {successKind === 'pending' ? t('auth.verificationPending') : successKind === 'partner' ? t('auth.partnerApplicationPending') : t('auth.accountCreated')}
               </h3>
               {successKind === 'pending' && (
                 <p className="text-[14px] text-on-surface-variant">
                   {t('auth.accountCreatedPending')}
+                </p>
+              )}
+              {successKind === 'partner' && (
+                <p className="text-[14px] text-on-surface-variant">
+                  {t('auth.partnerApplicationSubmitted')}
                 </p>
               )}
               <button

@@ -27,6 +27,7 @@
     "login": "Login",
     "signOut": "Sign Out",
     "donate": "Donate",
+    "createRequest": "Request Help",
     "locale": {
       "kk": "KAZ",
       "ru": "RUS",
@@ -85,7 +86,20 @@
     "uploadError": "Could not upload the document. Please try again.",
     "submitError": "Could not submit the verification request. Please try again.",
     "verificationOptional": "(optional — you can upload it later via your profile)",
-    "partnerReview": "Your business registration will be reviewed by our team within 2-3 business days. You'll receive a digital partnership agreement via email.",
+    "partnerStoreName": "Store Name",
+    "partnerStoreType": "Store Type",
+    "partnerStoreTypeOptions": {
+      "supermarket": "Supermarket",
+      "pharmacy": "Pharmacy",
+      "clothing": "Clothing Store",
+      "education": "Education Center"
+    },
+    "partnerCity": "City",
+    "partnerAddress": "Address",
+    "partnerReview": "Your business registration will be sent for review by our team. Once approved, you'll receive a digital partnership agreement via email.",
+    "partnerApplicationPending": "Application under review",
+    "partnerApplicationSubmitted": "Business application submitted — under review",
+    "partnerApplicationError": "Could not submit the business application. Please try again.",
     "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request."
   },
   "donate": {
@@ -182,6 +196,26 @@
       "high_priority": "High Priority",
       "verified": "Verified"
     }
+  },
+  "createRequest": {
+    "title": "New Assistance Request",
+    "subtitle": "Describe your need — donors can support it directly.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Need a food basket",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe your need in detail...",
+    "categoryLabel": "Category",
+    "regionLabel": "Region",
+    "goalAmountLabel": "Goal Amount (₸)",
+    "goalAmountPlaceholder": "e.g. 20000",
+    "submit": "Submit Request",
+    "submitLoading": "Submitting...",
+    "successTitle": "Request Created",
+    "successBody": "Your assistance request has been published. Donors can support it.",
+    "goToBrowse": "View Requests",
+    "notAuthorized": "Sign in to create an assistance request.",
+    "notVerified": "You need to be verified to create an assistance request. Your application is under review — we'll reach out once approved.",
+    "submitError": "Could not submit the request. Please try again."
   },
   "impact": {
     "title": "Live Impact Dashboard",

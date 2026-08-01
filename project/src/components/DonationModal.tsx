@@ -26,7 +26,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
   if (!open || !campaign) return null;
 
-  const remaining = campaign.goal_amount - campaign.raised_amount;
+  const remaining = Math.max(0, campaign.goal_amount - campaign.raised_amount);
 
   const handleDonate = async () => {
     if (!user) {
@@ -142,7 +142,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
                 <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden mt-3">
                   <div
                     className="h-full bg-secondary rounded-full transition-all"
-                    style={{ width: `${Math.round((campaign.raised_amount / campaign.goal_amount) * 100)}%` }}
+                    style={{ width: `${Math.min(100, Math.max(0, Math.round((campaign.raised_amount / campaign.goal_amount) * 100)))}%` }}
                   />
                 </div>
               </div>

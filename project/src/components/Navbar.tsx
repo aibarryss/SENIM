@@ -13,8 +13,9 @@ const locales: Locale[] = ['kk', 'ru', 'en'];
 
 export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { t, locale, setLocale } = useI18n();
+  const canCreateRequest = profile?.role === 'susn' && profile?.verified === true;
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-[14px] font-semibold leading-5 tracking-[0.01em] transition-all duration-200 pb-1 ${
@@ -56,6 +57,9 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
           <nav className="hidden md:flex gap-6 items-center">
             <NavLink to="/impact" className={navLinkClass}>{t('nav.impact')}</NavLink>
             <NavLink to="/browse" className={navLinkClass}>{t('nav.browseRequests')}</NavLink>
+            {canCreateRequest && (
+              <NavLink to="/create-request" className={navLinkClass}>{t('nav.createRequest')}</NavLink>
+            )}
             <NavLink to="/browse" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
             <NavLink to="/" className={navLinkClass}>{t('nav.howItWorks')}</NavLink>
           </nav>
@@ -93,6 +97,9 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
         <nav className="md:hidden flex flex-col gap-4 px-margin-mobile py-4 bg-surface-container-lowest border-b border-outline-variant">
           <NavLink to="/impact" className={navLinkClass} onClick={handleNavClick}>{t('nav.impact')}</NavLink>
           <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.browseRequests')}</NavLink>
+          {canCreateRequest && (
+            <NavLink to="/create-request" className={navLinkClass} onClick={handleNavClick}>{t('nav.createRequest')}</NavLink>
+          )}
           <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
           <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>{t('nav.howItWorks')}</NavLink>
           <div className="flex items-center gap-1 pt-2 border-t border-outline-variant w-fit bg-surface-container-low rounded-lg p-1">

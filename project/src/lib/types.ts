@@ -68,13 +68,30 @@ export interface DonationIntent {
   created_at: string;
 }
 
-export type SusnVerificationStatus = 'pending' | 'approved' | 'rejected';
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export type SusnVerificationStatus = ApplicationStatus;
 
 export interface SusnVerificationRequest {
   id: string;
   user_id: string;
   document_path: string;
   status: SusnVerificationStatus;
+  reviewer_note: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+export type PartnerStoreType = 'supermarket' | 'pharmacy' | 'clothing' | 'education';
+
+export interface PartnerApplication {
+  id: string;
+  user_id: string;
+  store_name: string;
+  store_type: PartnerStoreType;
+  city: string;
+  address: string;
+  status: ApplicationStatus;
   reviewer_note: string | null;
   created_at: string;
   reviewed_at: string | null;

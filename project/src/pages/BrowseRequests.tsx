@@ -181,7 +181,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                 {paginated.map((campaign) => {
-                  const pct = Math.round((campaign.raised_amount / campaign.goal_amount) * 100);
+                  const pct = Math.min(100, Math.max(0, Math.round((campaign.raised_amount / campaign.goal_amount) * 100)));
                   const urgency = campaign.urgency ? urgencyConfig[campaign.urgency] : null;
                   const UrgencyIcon = urgency?.icon;
                   // Raw DB value if a category has no dictionary entry yet.
