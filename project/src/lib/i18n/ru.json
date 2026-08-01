@@ -107,6 +107,18 @@
     "partnerApplicationPending": "Заявка на рассмотрении",
     "partnerApplicationSubmitted": "Бизнес-заявка отправлена — на рассмотрении",
     "partnerApplicationError": "Не удалось отправить бизнес-заявку. Попробуйте ещё раз.",
+    "emailAlreadyExists": "Этот email уже зарегистрирован. Перейдите на страницу входа.",
+    "passwordHint": "Минимум 8 символов, буквы и цифры",
+    "passwordWeak": "Пароль слишком слабый. Требуется минимум 8 символов, буквы и цифры.",
+    "forgotPassword": "Забыли пароль?",
+    "resetPasswordTitle": "Восстановление пароля",
+    "resetPasswordBody": "Введите ваш email — мы отправим ссылку для восстановления пароля.",
+    "resetPasswordSent": "Ссылка отправлена! Проверьте вашу почту.",
+    "resetPasswordError": "Не удалось отправить ссылку. Попробуйте ещё раз.",
+    "statusPending": "На рассмотрении",
+    "statusVerified": "Проверено",
+    "statusRejected": "Отклонено",
+    "statusApproved": "Одобрено",
     "donorBankNote": "После регистрации можно привязать карту Kaspi, Halyk, Forte, Jusan или Freedom. 100% пожертвования идёт на запрос получателя."
   },
   "donate": {

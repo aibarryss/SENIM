@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useI18n, type Locale } from '@/lib/i18n';
+import VerificationBadge from '@/components/VerificationBadge';
 
 interface NavbarProps {
   onLoginClick: () => void;
@@ -73,6 +74,7 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
               </button>
             ))}
           </div>
+          {user && <VerificationBadge />}
           <button
             onClick={handleLogin}
             className="text-[14px] font-semibold text-on-surface hover:opacity-80 active:scale-95 transition-all"

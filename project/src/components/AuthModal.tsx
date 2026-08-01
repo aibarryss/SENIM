@@ -14,7 +14,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
   const { signIn, signUp } = useAuth();
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [mode, setMode] = useState<'choose' | 'signup' | 'login' | 'success'>('choose');
+  const [mode, setMode] = useState<'choose' | 'signup' | 'login' | 'reset' | 'success'>('choose');
   const [role, setRole] = useState<UserRole>('donor');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +26,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
   const [storeAddress, setStoreAddress] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [successKind, setSuccessKind] = useState<'created' | 'pending' | 'partner'>('created');
+  const [successKind, setSuccessKind] = useState<'created' | 'pending' | 'partner' | 'reset_sent' | 'email_confirm'>('created');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -67,6 +67,9 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     fileInputRef.current?.click();
   };
 
+  // Minimum 8 characters, at least one letter and one number.
+  const isPasswordStrong = (pwd: string) => pwd.length >= 8 && /[a-zA-Z]/.test(pwd) && /[0-9]/.test(pwd);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -83,11 +86,40 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       return;
     }
 
-    // mode === 'signup'
-    const { error, user } = await signUp(email, password, role, name || undefined);
-    if (error) {
-      setError(error);
+    // mode === 'reset' — send password reset email (no password needed)
+    if (mode === 'reset') {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
       setLoading(false);
+      if (resetError) {
+        setError(t('auth.resetPasswordError'));
+        return;
+      }
+      setSuccessKind('reset_sent');
+      setMode('success');
+      return;
+    }
+
+    // mode === 'signup' — enforce password strength before calling Supabase
+    if (!isPasswordStrong(password)) {
+      setError(t('auth.passwordWeak'));
+      setLoading(false);
+      return;
+    }
+
+    const { error, user } = await signUp(email, password, role, name || undefined, phone || undefined);
+    if (error) {
+      setError(error === 'EMAIL_ALREADY_EXISTS' ? t('auth.emailAlreadyExists') : error);
+      setLoading(false);
+      return;
+    }
+
+    // If Supabase has email confirmation enabled, the user won't be
+    // immediately logged in — show a "check your email" notice instead
+    // of the generic "account created" message.
+    if (user && user.identities && user.identities.length > 0 && !user.confirmed_at) {
+      setSuccessKind('email_confirm');
+      setLoading(false);
+      setMode('success');
       return;
     }
 
@@ -162,7 +194,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       >
         <div className="flex items-center justify-between p-6 border-b border-outline-variant">
           <h2 className="text-xl font-bold text-primary">
-            {mode === 'choose' ? t('auth.joinSenim') : mode === 'login' ? t('auth.welcomeBack') : mode === 'success' ? t('auth.accountCreated') : t('common.createAccount')}
+            {mode === 'choose' ? t('auth.joinSenim') : mode === 'login' ? t('auth.welcomeBack') : mode === 'reset' ? t('auth.resetPasswordTitle') : mode === 'success' ? t('auth.accountCreated') : t('common.createAccount')}
           </h2>
           <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors">
             <X size={24} />
@@ -238,9 +270,42 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 {loading ? t('auth.signingIn') : t('common.signIn')}
               </button>
               <p className="text-center text-[14px] text-on-surface-variant">
+                <button type="button" onClick={() => setMode('reset')} className="text-secondary font-semibold hover:underline">
+                  {t('auth.forgotPassword')}
+                </button>
+              </p>
+              <p className="text-center text-[14px] text-on-surface-variant">
                 {t('auth.newToSenim')}{' '}
                 <button type="button" onClick={() => setMode('choose')} className="text-secondary font-semibold hover:underline">
                   {t('common.createAccount')}
+                </button>
+              </p>
+            </form>
+          )}
+
+          {mode === 'reset' && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <p className="text-[14px] text-on-surface-variant mb-2">{t('auth.resetPasswordBody')}</p>
+              <div>
+                <label className="block text-[14px] font-semibold mb-2">{t('common.email')}</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {loading ? t('auth.signingIn') : t('auth.resetPasswordTitle')}
+              </button>
+              <p className="text-center text-[14px] text-on-surface-variant">
+                <button type="button" onClick={() => setMode('login')} className="text-secondary font-semibold hover:underline">
+                  {t('common.signIn')}
                 </button>
               </p>
             </form>
@@ -267,11 +332,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
                 />
+                <p className="text-[12px] text-on-surface-variant mt-1">{t('auth.passwordHint')}</p>
               </div>
               <div>
                 <label className="block text-[14px] font-semibold mb-2">
@@ -412,7 +478,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 <CheckCircle size={32} className="text-secondary" />
               </div>
               <h3 className="text-lg font-bold text-primary">
-                {successKind === 'pending' ? t('auth.verificationPending') : successKind === 'partner' ? t('auth.partnerApplicationPending') : t('auth.accountCreated')}
+                {successKind === 'pending' ? t('auth.verificationPending') : successKind === 'partner' ? t('auth.partnerApplicationPending') : successKind === 'reset_sent' ? t('auth.resetPasswordSent') : successKind === 'email_confirm' ? t('auth.accountCreated') : t('auth.accountCreated')}
               </h3>
               {successKind === 'pending' && (
                 <p className="text-[14px] text-on-surface-variant">
@@ -422,6 +488,11 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               {successKind === 'partner' && (
                 <p className="text-[14px] text-on-surface-variant">
                   {t('auth.partnerApplicationSubmitted')}
+                </p>
+              )}
+              {successKind === 'email_confirm' && (
+                <p className="text-[14px] text-on-surface-variant">
+                  {t('auth.resetPasswordBody')}
                 </p>
               )}
               <button

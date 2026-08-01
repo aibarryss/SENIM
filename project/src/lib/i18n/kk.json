@@ -107,6 +107,18 @@
     "partnerApplicationPending": "Өтінім қарауда",
     "partnerApplicationSubmitted": "Бизнес өтінімі жіберілді — қарауда",
     "partnerApplicationError": "Бизнес өтінімін жіберу мүмкін болмады. Қайталап көріңіз.",
+    "emailAlreadyExists": "Бұл email тіркелген. Кіру бетіне өтіңіз.",
+    "passwordHint": "Кемінде 8 таңба, әріптер мен сандар",
+    "passwordWeak": "Құпия сөз тым әлсіз. Кемінде 8 таңба, әріптер мен сандар қажет.",
+    "forgotPassword": "Құпия сөзді ұмыттыңыз ба?",
+    "resetPasswordTitle": "Құпия сөзді қалпына келтіру",
+    "resetPasswordBody": "Email-іңізді енгізіңіз — құпия сөзді қалпына келтіру сілтемесін жібереміз.",
+    "resetPasswordSent": "Сілтеме жіберілді! Email-іңізді тексеріңіз.",
+    "resetPasswordError": "Сілтемені жіберу мүмкін болмады. Қайталап көріңіз.",
+    "statusPending": "Қарауда",
+    "statusVerified": "Тексерілген",
+    "statusRejected": "Қабылданбады",
+    "statusApproved": "Бекітілген",
     "donorBankNote": "Тіркелгеннен кейін Kaspi, Halyk, Forte, Jusan немесе Freedom картасын қоса аласыз. Демеуіңіздің 100% алушының өтініміне жұмсалады."
   },
   "donate": {

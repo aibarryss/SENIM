@@ -107,6 +107,18 @@
     "partnerApplicationPending": "Application under review",
     "partnerApplicationSubmitted": "Business application submitted — under review",
     "partnerApplicationError": "Could not submit the business application. Please try again.",
+    "emailAlreadyExists": "This email is already registered. Please go to the sign-in page.",
+    "passwordHint": "At least 8 characters, letters and numbers",
+    "passwordWeak": "Password is too weak. At least 8 characters, letters and numbers required.",
+    "forgotPassword": "Forgot password?",
+    "resetPasswordTitle": "Password Reset",
+    "resetPasswordBody": "Enter your email — we'll send you a password reset link.",
+    "resetPasswordSent": "Link sent! Check your email.",
+    "resetPasswordError": "Could not send the reset link. Please try again.",
+    "statusPending": "Pending",
+    "statusVerified": "Verified",
+    "statusRejected": "Rejected",
+    "statusApproved": "Approved",
     "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request."
   },
   "donate": {

@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import DonationModal from '@/components/DonationModal';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import LandingPage from '@/pages/LandingPage';
 import BrowseRequests from '@/pages/BrowseRequests';
 import ImpactDashboard from '@/pages/ImpactDashboard';
@@ -46,7 +47,14 @@ export default function App() {
               <Route path="/" element={<LandingPage onLoginClick={openAuth} />} />
               <Route path="/browse" element={<BrowseRequests onDonateClick={setDonationCampaign} />} />
               <Route path="/partners" element={<PartnerStores />} />
-              <Route path="/create-request" element={<CreateRequest onLoginClick={openAuth} />} />
+              <Route
+                path="/create-request"
+                element={
+                  <ProtectedRoute requireRole="susn" requireVerified onLoginClick={openAuth}>
+                    <CreateRequest onLoginClick={openAuth} />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/impact" element={<ImpactDashboard />} />
             </Routes>
           </div>
