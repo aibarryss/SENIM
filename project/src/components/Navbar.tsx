@@ -60,7 +60,7 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
             {canCreateRequest && (
               <NavLink to="/create-request" className={navLinkClass}>{t('nav.createRequest')}</NavLink>
             )}
-            <NavLink to="/browse" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
+            <NavLink to="/partners" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
             <NavLink to="/" className={navLinkClass}>{t('nav.howItWorks')}</NavLink>
           </nav>
         </div>
@@ -100,7 +100,7 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
           {canCreateRequest && (
             <NavLink to="/create-request" className={navLinkClass} onClick={handleNavClick}>{t('nav.createRequest')}</NavLink>
           )}
-          <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
+          <NavLink to="/partners" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
           <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>{t('nav.howItWorks')}</NavLink>
           <div className="flex items-center gap-1 pt-2 border-t border-outline-variant w-fit bg-surface-container-low rounded-lg p-1">
             <Globe size={14} className="text-on-surface-variant ml-1.5" />

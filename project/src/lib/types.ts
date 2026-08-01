@@ -10,6 +10,10 @@ export interface Campaign {
   id: string;
   title: string;
   description: string;
+  /** Optional locale -> text map for localized display. Falls back to `title`. */
+  title_i18n?: Record<string, string> | null;
+  /** Optional locale -> text map for localized display. Falls back to `description`. */
+  description_i18n?: Record<string, string> | null;
   category: CampaignCategory;
   region: string;
   goal_amount: number;

@@ -5,7 +5,17 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
+import { cityLabel } from '@/lib/cities';
 import type { Transaction, PlatformStats } from '@/lib/types';
+
+// Approximate city positions on the Kazakhstan SVG map (percentages).
+const cityNodes = [
+  { key: 'Almaty', x: 78, y: 78, size: 'lg' },
+  { key: 'Astana', x: 52, y: 42, size: 'md' },
+  { key: 'Shymkent', x: 52, y: 82, size: 'md' },
+  { key: 'Karaganda', x: 56, y: 50, size: 'sm' },
+  { key: 'Aktobe', x: 22, y: 48, size: 'sm' },
+] as const;
 
 export default function ImpactDashboard() {
   const { t, tp } = useI18n();
@@ -93,19 +103,53 @@ export default function ImpactDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Stylized Kazakhstan map with city nodes */}
           <div className="w-full h-full bg-[#f1f5f9] relative">
             <div className="absolute inset-0 bg-gradient-to-br from-surface-container-low to-surface-container-high" />
-            {/* Stylized map with pulsing nodes */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-6xl font-bold text-outline-variant/20 mb-2">{t('impact.mapTitle')}</div>
-                <p className="text-[14px] text-on-surface-variant">{t('impact.mapSub')}</p>
-              </div>
+
+            {/* Simplified Kazakhstan silhouette (SVG) */}
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              className="absolute inset-0 w-full h-full"
+              style={{ opacity: 0.12 }}
+            >
+              <path
+                d="M14,38 Q18,30 28,28 L40,26 Q48,24 54,28 L62,30 Q72,28 80,34 L88,40 Q92,48 88,56 L84,64 Q78,72 70,74 L58,78 Q48,82 40,80 L30,76 Q22,72 18,64 L14,54 Q12,46 14,38 Z"
+                fill="#006c49"
+                stroke="#006c49"
+                strokeWidth="0.4"
+              />
+            </svg>
+
+            {/* City nodes */}
+            {cityNodes.map((node) => {
+              const sizeClass =
+                node.size === 'lg' ? 'w-5 h-5' : node.size === 'md' ? 'w-4 h-4' : 'w-3 h-3';
+              return (
+                <div
+                  key={node.key}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+                  style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                >
+                  <div className={`relative ${sizeClass} rounded-full bg-secondary border-2 border-white shadow-lg animate-pulse-node`}>
+                    <div className={`absolute inset-0 ${sizeClass} rounded-full bg-secondary/40 animate-ping`} />
+                  </div>
+                  <div className="mt-1.5 glass-card px-2 py-0.5 rounded-md text-[11px] font-semibold text-on-surface whitespace-nowrap shadow-sm">
+                    {cityLabel(node.key, t)}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Title overlay (bottom-left) */}
+            <div className="absolute bottom-6 left-6">
+              <div className="text-2xl font-bold text-outline-variant/30">{t('impact.mapTitle')}</div>
+              <p className="text-[12px] text-on-surface-variant">{t('impact.mapSub')}</p>
             </div>
-            <div className="absolute top-1/4 left-1/3 animate-pulse-node w-4 h-4 bg-secondary rounded-full border-2 border-white shadow-lg" />
-            <div className="absolute bottom-1/3 right-1/4 animate-pulse-node w-6 h-6 bg-secondary rounded-full border-2 border-white shadow-lg" />
-            <div className="absolute top-1/2 left-1/2 animate-pulse-node w-3 h-3 bg-secondary rounded-full border-2 border-white shadow-lg" />
           </div>
+
           <div className="absolute bottom-6 right-6 flex flex-col gap-2">
             <div className="glass-card px-4 py-2 rounded-full text-[12px] font-medium flex items-center gap-3">
               <span className="w-3 h-3 rounded-full bg-secondary" /> {t('impact.redeemedVouchers')}
@@ -183,7 +227,7 @@ export default function ImpactDashboard() {
                           {tx.type === 'medicine_purchase' && t('impact.tx.medicine', { n: tx.voucher_number ?? '' })}
                           {tx.type === 'utility_payment' && t('impact.tx.utility', { n: tx.voucher_number ?? '' })}
                         </p>
-                        <p className="text-[14px] text-on-surface-variant">{tx.store_name}, {tx.city}</p>
+                        <p className="text-[14px] text-on-surface-variant">{tx.store_name}, {cityLabel(tx.city, t)}</p>
                       </div>
                     </div>
                     <div className="text-right">

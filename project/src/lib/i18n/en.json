@@ -3,6 +3,13 @@
     "title": "SENIM | Direct Impact. Zero Scams.",
     "description": "The first charity platform in Kazakhstan where your donation turns into specific products, not untraceable cash. Real food and medicine for those in need, verified by AI."
   },
+  "region": {
+    "almaty": "Almaty",
+    "astana": "Astana",
+    "shymkent": "Shymkent",
+    "karaganda": "Karaganda",
+    "aktobe": "Aktobe"
+  },
   "app": {
     "generalDonation": {
       "title": "General Donation",
@@ -170,6 +177,11 @@
     "ctaSub": "Every voucher is recorded on the blockchain, and every retail receipt is available for your audit. No management fees, just pure impact.",
     "exploreMap": "Explore Map",
     "scanLive": "Scan to See Live Impact"
+  },
+  "partners": {
+    "title": "Partner Stores",
+    "subtitle": "Trusted stores and pharmacies where SENIM vouchers can be redeemed.",
+    "empty": "No partner stores have been added yet."
   },
   "browse": {
     "title": "Urgent Assistance Requests",

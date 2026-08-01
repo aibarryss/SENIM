@@ -4,13 +4,12 @@ import { CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
+import { CITIES } from '@/lib/cities';
 import type { CampaignCategory } from '@/lib/types';
 
 interface CreateRequestProps {
   onLoginClick: () => void;
 }
-
-const cityNames = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe'];
 
 const categoryOptions: { value: CampaignCategory; labelKey: 'browse.cat.grocery' | 'browse.cat.medicine' | 'browse.cat.winter' | 'browse.cat.education' }[] = [
   { value: 'grocery', labelKey: 'browse.cat.grocery' },
@@ -21,12 +20,12 @@ const categoryOptions: { value: CampaignCategory; labelKey: 'browse.cat.grocery'
 
 export default function CreateRequest({ onLoginClick }: CreateRequestProps) {
   const { user, profile, loading } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<CampaignCategory>('grocery');
-  const [region, setRegion] = useState(cityNames[0]);
+  const [region, setRegion] = useState(CITIES[0].key);
   const [goalAmount, setGoalAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -79,6 +78,10 @@ export default function CreateRequest({ onLoginClick }: CreateRequestProps) {
     const { error: insertError } = await supabase.from('campaigns').insert({
       title,
       description,
+      // Store the entered text under the active locale so other locales
+      // fall back to it via localizedText().
+      title_i18n: { [locale]: title },
+      description_i18n: { [locale]: description },
       category,
       region,
       goal_amount: amount,
@@ -175,8 +178,8 @@ export default function CreateRequest({ onLoginClick }: CreateRequestProps) {
                 onChange={(e) => setRegion(e.target.value)}
                 className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none bg-surface-container-lowest"
               >
-                {cityNames.map((city) => (
-                  <option key={city} value={city}>{city}</option>
+                {CITIES.map((city) => (
+                  <option key={city.key} value={city.key}>{t(city.labelKey)}</option>
                 ))}
               </select>
             </div>

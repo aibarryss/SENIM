@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck, Bell, Zap, BadgeCheck, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useI18n, type TKey } from '@/lib/i18n';
+import { CITIES } from '@/lib/cities';
+import { localizedText } from '@/lib/i18n-text';
 import type { Campaign, CampaignCategory } from '@/lib/types';
 
 interface BrowseRequestsProps {
@@ -17,12 +19,10 @@ const categoryKeys: { key: CampaignCategory | 'all'; labelKey: TKey }[] = [
   { key: 'education', labelKey: 'browse.cat.education' },
 ];
 
-const cityNames = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe'];
-
 const fallbackImg = 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&q=80';
 
 export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<Set<CampaignCategory | 'all'>>(new Set(['all']));
@@ -34,7 +34,6 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
   const categoriesByKey: Record<string, string> = Object.fromEntries(
     categories.filter((c) => c.key !== 'all').map((c) => [c.key, c.label]),
   );
-  const regions = [t('browse.region.all'), ...cityNames];
 
   const urgencyConfig: Record<string, { label: string; icon: typeof Bell; className: string }> = {
     urgent: { label: t('browse.urgency.urgent'), icon: Bell, className: 'bg-error/10 text-error' },
@@ -133,8 +132,9 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
               }}
               className="w-full p-3 rounded-lg border border-outline-variant text-[16px] focus:ring-primary focus:border-primary outline-none bg-surface-container-lowest"
             >
-              {regions.map((r) => (
-                <option key={r}>{r}</option>
+              <option value="all">{t('browse.region.all')}</option>
+              {CITIES.map((city) => (
+                <option key={city.key} value={city.key}>{t(city.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -186,6 +186,8 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                   const UrgencyIcon = urgency?.icon;
                   // Raw DB value if a category has no dictionary entry yet.
                   const catLabel = categoriesByKey[campaign.category] ?? campaign.category;
+                  const title = localizedText(campaign.title, campaign.title_i18n, locale);
+                  const description = localizedText(campaign.description, campaign.description_i18n, locale);
 
                   return (
                     <div
@@ -195,7 +197,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                       <div className="relative h-64 overflow-hidden">
                         <img
                           src={campaign.image_url || fallbackImg}
-                          alt={campaign.title}
+                          alt={title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
                         <div className="absolute top-4 left-4 flex gap-2">
@@ -211,8 +213,8 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                       </div>
 
                       <div className="p-6 flex flex-col flex-1">
-                        <h3 className="text-[20px] font-semibold mb-3">{campaign.title}</h3>
-                        <p className="text-[16px] leading-6 text-on-surface-variant mb-6 line-clamp-3">{campaign.description}</p>
+                        <h3 className="text-[20px] font-semibold mb-3">{title}</h3>
+                        <p className="text-[16px] leading-6 text-on-surface-variant mb-6 line-clamp-3">{description}</p>
                         <div className="mt-auto space-y-4">
                           <div>
                             <div className="flex justify-between items-end mb-2">

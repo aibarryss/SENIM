@@ -3,6 +3,7 @@ import { X, CreditCard, Repeat, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
+import { localizedText } from '@/lib/i18n-text';
 import type { Campaign } from '@/lib/types';
 
 interface DonationModalProps {
@@ -16,7 +17,7 @@ type PaymentType = 'full' | 'partial' | 'subscription';
 
 export default function DonationModal({ campaign, open, onClose, onRequireAuth }: DonationModalProps) {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [paymentType, setPaymentType] = useState<PaymentType>('full');
   const [amount, setAmount] = useState('');
   const [monthlyLimit, setMonthlyLimit] = useState('');
@@ -26,6 +27,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
   if (!open || !campaign) return null;
 
+  const campaignTitle = localizedText(campaign.title, campaign.title_i18n, locale);
   const remaining = Math.max(0, campaign.goal_amount - campaign.raised_amount);
 
   const handleDonate = async () => {
@@ -108,7 +110,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
             <div className="flex items-center justify-between p-6 border-b border-outline-variant">
               <div>
                 <h2 className="text-xl font-bold text-primary">{t('common.donateNow')}</h2>
-                <p className="text-[14px] text-on-surface-variant mt-1">{campaign.title}</p>
+                <p className="text-[14px] text-on-surface-variant mt-1">{campaignTitle}</p>
               </div>
               <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors">
                 <X size={24} />

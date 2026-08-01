@@ -10,6 +10,7 @@ import LandingPage from '@/pages/LandingPage';
 import BrowseRequests from '@/pages/BrowseRequests';
 import ImpactDashboard from '@/pages/ImpactDashboard';
 import CreateRequest from '@/pages/CreateRequest';
+import PartnerStores from '@/pages/PartnerStores';
 import type { Campaign } from '@/lib/types';
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<LandingPage onLoginClick={openAuth} />} />
               <Route path="/browse" element={<BrowseRequests onDonateClick={setDonationCampaign} />} />
+              <Route path="/partners" element={<PartnerStores />} />
               <Route path="/create-request" element={<CreateRequest onLoginClick={openAuth} />} />
               <Route path="/impact" element={<ImpactDashboard />} />
             </Routes>
