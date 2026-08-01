@@ -1,37 +1,46 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck, Bell, Zap, BadgeCheck, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import type { Campaign, CampaignCategory, CampaignUrgency } from '@/lib/types';
+import { useI18n, type TKey } from '@/lib/i18n';
+import type { Campaign, CampaignCategory } from '@/lib/types';
 
 interface BrowseRequestsProps {
   onDonateClick: (campaign: Campaign) => void;
 }
 
-const categories: { key: CampaignCategory | 'all'; label: string }[] = [
-  { key: 'all', label: 'All Categories' },
-  { key: 'grocery', label: 'Grocery' },
-  { key: 'medicine', label: 'Medicine' },
-  { key: 'winter', label: 'Winter Clothing' },
-  { key: 'education', label: 'Education' },
+// 'all' is the localizable "every category" option; the rest are raw DB values.
+const categoryKeys: { key: CampaignCategory | 'all'; labelKey: TKey }[] = [
+  { key: 'all', labelKey: 'browse.cat.all' },
+  { key: 'grocery', labelKey: 'browse.cat.grocery' },
+  { key: 'medicine', labelKey: 'browse.cat.medicine' },
+  { key: 'winter', labelKey: 'browse.cat.winter' },
+  { key: 'education', labelKey: 'browse.cat.education' },
 ];
 
-const regions = ['All of Kazakhstan', 'Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe'];
-
-const urgencyConfig: Record<string, { label: string; icon: typeof Bell; className: string }> = {
-  urgent: { label: 'Urgent', icon: Bell, className: 'bg-error/10 text-error' },
-  high_priority: { label: 'High Priority', icon: Zap, className: 'bg-error/10 text-error' },
-  verified: { label: 'Verified', icon: BadgeCheck, className: 'bg-secondary-container/30 text-on-secondary-container' },
-};
+const cityNames = ['Almaty', 'Astana', 'Shymkent', 'Karaganda', 'Aktobe'];
 
 const fallbackImg = 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&q=80';
 
 export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
+  const { t } = useI18n();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<Set<CampaignCategory | 'all'>>(new Set(['all']));
-  const [selectedRegion, setSelectedRegion] = useState('All of Kazakhstan');
+  const [selectedRegion, setSelectedRegion] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
+
+  const categories = categoryKeys.map((c) => ({ key: c.key, label: t(c.labelKey) }));
+  const categoriesByKey: Record<string, string> = Object.fromEntries(
+    categories.filter((c) => c.key !== 'all').map((c) => [c.key, c.label]),
+  );
+  const regions = [t('browse.region.all'), ...cityNames];
+
+  const urgencyConfig: Record<string, { label: string; icon: typeof Bell; className: string }> = {
+    urgent: { label: t('browse.urgency.urgent'), icon: Bell, className: 'bg-error/10 text-error' },
+    high_priority: { label: t('browse.urgency.high_priority'), icon: Zap, className: 'bg-error/10 text-error' },
+    verified: { label: t('browse.urgency.verified'), icon: BadgeCheck, className: 'bg-secondary-container/30 text-on-secondary-container' },
+  };
 
   const fetchCampaigns = useCallback(async () => {
     setLoading(true);
@@ -41,7 +50,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
     if (cats.length > 0) {
       query = query.in('category', cats);
     }
-    if (selectedRegion !== 'All of Kazakhstan') {
+    if (selectedRegion !== 'all') {
       query = query.eq('region', selectedRegion);
     }
 
@@ -88,9 +97,9 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
     <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-xl">
       {/* Page Header */}
       <div className="mb-stack-xl">
-        <h1 className="text-[32px] leading-10 font-bold mb-2">Urgent Assistance Requests</h1>
+        <h1 className="text-[32px] leading-10 font-bold mb-2">{t('browse.title')}</h1>
         <p className="text-[18px] leading-7 text-on-surface-variant max-w-2xl">
-          Direct aid for families and individuals across Kazakhstan. Every tenge goes directly to the partner store to fulfill these specific needs.
+          {t('browse.subtitle')}
         </p>
       </div>
 
@@ -98,7 +107,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
         {/* Sidebar */}
         <aside className="w-full lg:w-72 shrink-0 space-y-8">
           <div>
-            <h3 className="text-[14px] font-semibold text-primary uppercase tracking-wider mb-4">Categories</h3>
+            <h3 className="text-[14px] font-semibold text-primary uppercase tracking-wider mb-4">{t('browse.categories')}</h3>
             <div className="space-y-3">
               {categories.map((cat) => (
                 <label key={cat.key} className="flex items-center gap-3 cursor-pointer group">
@@ -115,7 +124,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
           </div>
 
           <div className="pt-6 border-t border-outline-variant">
-            <h3 className="text-[14px] font-semibold text-primary uppercase tracking-wider mb-4">Regions</h3>
+            <h3 className="text-[14px] font-semibold text-primary uppercase tracking-wider mb-4">{t('browse.regions')}</h3>
             <select
               value={selectedRegion}
               onChange={(e) => {
@@ -132,9 +141,9 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
 
           <div className="p-6 bg-surface-container-low rounded-xl">
             <ShieldCheck size={24} className="text-secondary mb-2" />
-            <h4 className="text-[20px] font-semibold mb-2">100% Transparent</h4>
+            <h4 className="text-[20px] font-semibold mb-2">{t('browse.transparentTitle')}</h4>
             <p className="text-[14px] leading-5 text-on-surface-variant">
-              Your contribution is paid directly to the merchant. SENIM takes 0% commission on individual requests.
+              {t('browse.transparentBody')}
             </p>
           </div>
         </aside>
@@ -157,15 +166,15 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
             </div>
           ) : paginated.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <p className="text-[18px] text-on-surface-variant">No requests match your filters.</p>
+              <p className="text-[18px] text-on-surface-variant">{t('browse.empty')}</p>
               <button
                 onClick={() => {
                   setSelectedCategories(new Set(['all']));
-                  setSelectedRegion('All of Kazakhstan');
+                  setSelectedRegion('all');
                 }}
                 className="mt-4 px-6 py-2 bg-primary text-on-primary rounded-full font-semibold hover:opacity-90 transition-all"
               >
-                Clear Filters
+                {t('browse.clearFilters')}
               </button>
             </div>
           ) : (
@@ -175,6 +184,8 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                   const pct = Math.round((campaign.raised_amount / campaign.goal_amount) * 100);
                   const urgency = campaign.urgency ? urgencyConfig[campaign.urgency] : null;
                   const UrgencyIcon = urgency?.icon;
+                  // Raw DB value if a category has no dictionary entry yet.
+                  const catLabel = categoriesByKey[campaign.category] ?? campaign.category;
 
                   return (
                     <div
@@ -189,7 +200,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                         />
                         <div className="absolute top-4 left-4 flex gap-2">
                           <span className="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-medium text-primary uppercase tracking-wider">
-                            {campaign.category}
+                            {catLabel}
                           </span>
                           {urgency && UrgencyIcon && (
                             <span className={`${urgency.className} px-3 py-1 rounded-full text-[12px] font-medium flex items-center gap-1`}>
@@ -207,7 +218,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                             <div className="flex justify-between items-end mb-2">
                               <span className="text-[14px] font-semibold">
                                 <span className="text-primary font-bold">{formatKzt(campaign.raised_amount)}</span>{' '}
-                                <span className="text-on-surface-variant font-normal">of {formatKzt(campaign.goal_amount)}</span>
+                                <span className="text-on-surface-variant font-normal">{t('browse.of', { goal: formatKzt(campaign.goal_amount) })}</span>
                               </span>
                               <span className="text-[14px] font-semibold text-secondary">{pct}%</span>
                             </div>
@@ -222,7 +233,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                             onClick={() => onDonateClick(campaign)}
                             className="w-full bg-primary text-on-primary text-[14px] font-semibold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                           >
-                            Donate Now <Heart size={18} />
+                            {t('common.donateNow')} <Heart size={18} />
                           </button>
                         </div>
                       </div>

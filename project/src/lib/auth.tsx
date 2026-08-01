@@ -8,7 +8,7 @@ interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, role: UserRole, displayName?: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, role: UserRole, displayName?: string) => Promise<{ error: string | null; user: User | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, role: UserRole, displayName?: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return { error: error.message };
+    if (error) return { error: error.message, user: null };
     if (data.user) {
       await supabase.from('profiles').insert({
         id: data.user.id,
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         verified: false,
       });
     }
-    return { error: null };
+    return { error: null, user: data.user ?? null };
   };
 
   const signIn = async (email: string, password: string) => {

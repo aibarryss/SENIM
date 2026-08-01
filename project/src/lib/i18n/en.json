@@ -1,0 +1,239 @@
+{
+  "index": {
+    "title": "SENIM | Direct Impact. Zero Scams.",
+    "description": "The first charity platform in Kazakhstan where your donation turns into specific products, not untraceable cash. Real food and medicine for those in need, verified by AI."
+  },
+  "app": {
+    "generalDonation": {
+      "title": "General Donation",
+      "description": "Support the most urgent requests on SENIM"
+    }
+  },
+  "common": {
+    "email": "Email",
+    "password": "Password",
+    "createAccount": "Create Account",
+    "signIn": "Sign In",
+    "donateNow": "Donate Now",
+    "loading": "Loading...",
+    "all": "All",
+    "done": "Done"
+  },
+  "nav": {
+    "impact": "Impact",
+    "browseRequests": "Browse Requests",
+    "partnerStores": "Partner Stores",
+    "howItWorks": "How it Works",
+    "login": "Login",
+    "signOut": "Sign Out",
+    "donate": "Donate",
+    "locale": {
+      "kk": "KAZ",
+      "ru": "RUS",
+      "en": "ENG"
+    }
+  },
+  "footer": {
+    "tagline": "Revolutionizing civic transparency through digital verification. Empowering every Kazakhstani to make a difference safely.",
+    "resources": "Resources",
+    "transparencyReports": "Transparency Reports",
+    "auditDocuments": "Audit Documents",
+    "impactMap": "Impact Map",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contactSupport": "Contact Support",
+    "downloadApp": "Download App",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "copyright": "© 2024 SENIM Kazakhstan. All rights reserved. Registered Charity No. 0012345"
+  },
+  "auth": {
+    "joinSenim": "Join SENIM",
+    "welcomeBack": "Welcome Back",
+    "choosePrompt": "Choose how you want to participate in SENIM:",
+    "role": {
+      "donor": {
+        "label": "Donor",
+        "desc": "Help those in need with direct contributions"
+      },
+      "susn": {
+        "label": "Assistance Seeker",
+        "desc": "Request verified aid from the community"
+      },
+      "partner": {
+        "label": "Partner Business",
+        "desc": "Register your store as a redemption point"
+      }
+    },
+    "alreadyHaveAccount": "Already have an account?",
+    "newToSenim": "New to SENIM?",
+    "signingIn": "Signing in...",
+    "creatingAccount": "Creating account...",
+    "registeringAs": "Registering as:",
+    "displayName": "Display Name",
+    "displayNameOptional": "(optional — stay anonymous)",
+    "phoneNumber": "Phone Number",
+    "verificationTitle": "Submit document for review",
+    "verificationBody": "Upload your eGov certificate (large family, disability, single parent, etc.). Your document will be sent for review — this takes time. We'll email you the result.",
+    "uploadCertificate": "Upload Certificate",
+    "docSubmitted": "Document submitted — under review",
+    "verificationPending": "Application under review",
+    "accountCreated": "Account created successfully.",
+    "accountCreatedPending": "Account created. Verification under review — we'll reach out once approved.",
+    "uploadingDoc": "Uploading document...",
+    "uploadError": "Could not upload the document. Please try again.",
+    "submitError": "Could not submit the verification request. Please try again.",
+    "verificationOptional": "(optional — you can upload it later via your profile)",
+    "partnerReview": "Your business registration will be reviewed by our team within 2-3 business days. You'll receive a digital partnership agreement via email.",
+    "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request."
+  },
+  "donate": {
+    "successTitle": "Donation Intent Recorded",
+    "successBody": "We've saved your pledge. Payment processing isn't live yet, so no charge has been made and the campaign total hasn't changed — our team will follow up once payments are enabled.",
+    "done": "Done",
+    "signInNotice": "You'll need to sign in to donate. Choose an amount below, then continue to sign in.",
+    "goal": "Goal",
+    "raised": "Already raised",
+    "remaining": "Remaining",
+    "paymentType": "Choose payment type:",
+    "full": "Full Payment",
+    "fullDesc": "Cover the entire remaining: {amount}",
+    "partial": "Partial (Crowdfunding)",
+    "partialDesc": "Contribute any amount",
+    "subscription": "Monthly Subscription",
+    "subscriptionDesc": "Auto-distribute to most urgent requests",
+    "amountLabel": "Amount (₸)",
+    "amountPlaceholder": "e.g. 2000",
+    "monthlyLimit": "Monthly limit (₸)",
+    "monthlyLimitPlaceholder": "e.g. 5000",
+    "monthlyDesc": "Each month, this amount is auto-charged and distributed to the most urgent requests.",
+    "processing": "Processing...",
+    "confirm": "Confirm Donation",
+    "signInToDonate": "Sign In to Donate",
+    "insertError": "Could not record your donation intent. Please try again."
+  },
+  "landing": {
+    "badge": "100% Direct Verification via AI",
+    "hero1": "Direct Impact.",
+    "hero2": "Zero Scams.",
+    "heroSub": "The first charity platform in Kazakhstan where your donation turns into specific products, not untraceable cash. Real food and medicine for those in need, verified by AI.",
+    "startDonating": "Start Donating",
+    "viewTransparency": "View Transparency Report",
+    "foodBasketImgAlt": "Food basket",
+    "medicineImgAlt": "Medicine",
+    "foodBasketLabel": "Food Basket #{n}",
+    "urgent": "URGENT",
+    "secureVouchers": "Secure Vouchers",
+    "directRedemption": "Direct retail redemption",
+    "liveImpact": "Live Impact:",
+    "ticker": {
+      "baskets": "Food Baskets Distributed Today",
+      "verifiedAid": "Verified Aid in Almaty",
+      "vouchers": "Active QR Vouchers",
+      "delivery": "Delivery Rate"
+    },
+    "loopTitle": "The Transparency Loop",
+    "loopSub": "From your wallet to their hands, every Tenge is tracked by our smart ecosystem.",
+    "step1": {
+      "title": "Donor Funds",
+      "desc": "Choose a specific campaign or person. Your funds are locked into the SENIM smart contract immediately."
+    },
+    "step2": {
+      "title": "AI Verification",
+      "desc": "Recipients are verified via government databases and face-ID to ensure aid goes to real people in need."
+    },
+    "step3": {
+      "title": "QR Voucher",
+      "desc": "The recipient receives a digital voucher on their phone, restricted to specific product categories only."
+    },
+    "step4": {
+      "title": "Retail Redemption",
+      "desc": "Vouchers are scanned at Magnum, Small, or Europharma. Retailer gets paid instantly by SENIM."
+    },
+    "partnersTitle": "Trusted Redemption Partners",
+    "ctaTitle": "Join the most transparent charity network in Central Asia.",
+    "ctaSub": "Every voucher is recorded on the blockchain, and every retail receipt is available for your audit. No management fees, just pure impact.",
+    "exploreMap": "Explore Map",
+    "scanLive": "Scan to See Live Impact"
+  },
+  "browse": {
+    "title": "Urgent Assistance Requests",
+    "subtitle": "Direct aid for families and individuals across Kazakhstan. Every tenge goes directly to the partner store to fulfill these specific needs.",
+    "categories": "Categories",
+    "regions": "Regions",
+    "cat": {
+      "all": "All Categories",
+      "grocery": "Grocery",
+      "medicine": "Medicine",
+      "winter": "Winter Clothing",
+      "education": "Education"
+    },
+    "region": {
+      "all": "All of Kazakhstan"
+    },
+    "transparentTitle": "100% Transparent",
+    "transparentBody": "Your contribution is paid directly to the merchant. SENIM takes 0% commission on individual requests.",
+    "of": "of {goal}",
+    "empty": "No requests match your filters.",
+    "clearFilters": "Clear Filters",
+    "urgency": {
+      "urgent": "Urgent",
+      "high_priority": "High Priority",
+      "verified": "Verified"
+    }
+  },
+  "impact": {
+    "title": "Live Impact Dashboard",
+    "subtitle": "Real-time verification of every Tenge donated. SENIM ensures your contribution reaches those in need with 100% blockchain-backed transparency.",
+    "fullAudit": "Full Audit 2024",
+    "shareReport": "Share Report",
+    "hotspots": "Impact Hotspots",
+    "liveUpdates": "Live Updates (Last 5 mins)",
+    "mapTitle": "KAZAKHSTAN",
+    "mapSub": "Live distribution network across 5 regions",
+    "redeemedVouchers": "Redeemed Vouchers",
+    "partnerHubs": "Partner Hubs",
+    "allocationsTitle": "Fund Allocation",
+    "allocations": {
+      "groceries": "Groceries & Food Security",
+      "medicine": "Essential Medicine",
+      "utilities": "Utility Support",
+      "ops": "Operational Transparency"
+    },
+    "mealsNote": "Every ₸1,000 donated provides approx. 2 balanced meals for a family of four.",
+    "feedTitle": "Recent Impact Transactions",
+    "blockchainVerified": "Blockchain Verified",
+    "tx": {
+      "voucher": "Voucher {n} Redeemed",
+      "medicine": "Medicine Purchase {n}",
+      "utility": "Utility Bill Payment {n}"
+    },
+    "auditTitle": "Audit & Legal Core",
+    "auditBody": "Access our full ledger, independent audit reports, and legal compliance documents. We operate on a 'Zero Shadow' policy.",
+    "audit": {
+      "q3": "Q3 2024 Audit Report",
+      "ledger": "Blockchain Ledger Access",
+      "tax": "Tax Exemption Status"
+    },
+    "charityNote": "SENIM is registered under the Charity Act of Kazakhstan. Every donation is tax-deductible for residents.",
+    "stats": {
+      "families": "Families Helped",
+      "retailers": "Partner Retailers",
+      "transparency": "Transparency Score"
+    },
+    "time": {
+      "justNow": "just now",
+      "minute": {
+        "one": "{n} minute ago",
+        "few": "{n} minutes ago",
+        "many": "{n} minutes ago"
+      },
+      "hour": {
+        "one": "{n} hour ago",
+        "few": "{n} hours ago",
+        "many": "{n} hours ago"
+      }
+    }
+  }
+}

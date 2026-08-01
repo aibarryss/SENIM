@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
@@ -13,13 +14,14 @@ import type { Campaign } from '@/lib/types';
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [donationCampaign, setDonationCampaign] = useState<Campaign | null>(null);
+  const { t } = useI18n();
 
   const openAuth = () => setAuthOpen(true);
   const openDonate = () => {
     setDonationCampaign({
       id: 'general',
-      title: 'General Donation',
-      description: 'Support the most urgent requests on SENIM',
+      title: t('app.generalDonation.title'),
+      description: t('app.generalDonation.description'),
       category: 'grocery',
       region: 'Almaty',
       goal_amount: 50000,

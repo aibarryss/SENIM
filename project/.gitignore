@@ -21,3 +21,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+supabase/.temp
+supabase/.branches
+
+# Stray duplicate of the whole project created by a tool — not part of the repo
+project

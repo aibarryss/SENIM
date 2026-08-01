@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, CreditCard, Repeat, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import type { Campaign } from '@/lib/types';
 
 interface DonationModalProps {
@@ -15,6 +16,7 @@ type PaymentType = 'full' | 'partial' | 'subscription';
 
 export default function DonationModal({ campaign, open, onClose, onRequireAuth }: DonationModalProps) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [paymentType, setPaymentType] = useState<PaymentType>('full');
   const [amount, setAmount] = useState('');
   const [monthlyLimit, setMonthlyLimit] = useState('');
@@ -61,7 +63,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
     setLoading(false);
     if (insertError) {
-      setError('Could not record your donation intent. Please try again.');
+      setError(t('donate.insertError'));
       return;
     }
     setSuccess(true);
@@ -90,23 +92,22 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
             <div className="w-16 h-16 rounded-full bg-secondary-container mx-auto flex items-center justify-center mb-4">
               <CheckCircle size={32} className="text-secondary" />
             </div>
-            <h2 className="text-xl font-bold text-primary mb-2">Donation Intent Recorded</h2>
+            <h2 className="text-xl font-bold text-primary mb-2">{t('donate.successTitle')}</h2>
             <p className="text-[14px] text-on-surface-variant mb-6">
-              We've saved your pledge. Payment processing isn't live yet, so no charge has been made and the campaign total hasn't
-              changed — our team will follow up once payments are enabled.
+              {t('donate.successBody')}
             </p>
             <button
               onClick={handleClose}
               className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all"
             >
-              Done
+              {t('donate.done')}
             </button>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between p-6 border-b border-outline-variant">
               <div>
-                <h2 className="text-xl font-bold text-primary">Donate Now</h2>
+                <h2 className="text-xl font-bold text-primary">{t('common.donateNow')}</h2>
                 <p className="text-[14px] text-on-surface-variant mt-1">{campaign.title}</p>
               </div>
               <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors">
@@ -121,21 +122,21 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
               {!user && (
                 <div className="p-4 rounded-xl bg-surface-container-low text-[14px] text-on-surface-variant">
-                  You'll need to sign in to donate. Choose an amount below, then continue to sign in.
+                  {t('donate.signInNotice')}
                 </div>
               )}
 
               <div className="p-4 rounded-xl bg-surface-container-low">
                 <div className="flex justify-between mb-2">
-                  <span className="text-[14px] text-on-surface-variant">Goal</span>
+                  <span className="text-[14px] text-on-surface-variant">{t('donate.goal')}</span>
                   <span className="text-[14px] font-semibold">{formatKzt(campaign.goal_amount)}</span>
                 </div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-[14px] text-on-surface-variant">Already raised</span>
+                  <span className="text-[14px] text-on-surface-variant">{t('donate.raised')}</span>
                   <span className="text-[14px] font-semibold text-secondary">{formatKzt(campaign.raised_amount)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[14px] text-on-surface-variant">Remaining</span>
+                  <span className="text-[14px] text-on-surface-variant">{t('donate.remaining')}</span>
                   <span className="text-[14px] font-bold text-primary">{formatKzt(remaining)}</span>
                 </div>
                 <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden mt-3">
@@ -147,7 +148,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
               </div>
 
               <div>
-                <p className="text-[14px] font-semibold mb-2">Choose payment type:</p>
+                <p className="text-[14px] font-semibold mb-2">{t('donate.paymentType')}</p>
                 <div className="space-y-2">
                   <button
                     onClick={() => setPaymentType('full')}
@@ -157,8 +158,8 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
                   >
                     <CreditCard size={20} className={paymentType === 'full' ? 'text-secondary' : 'text-on-surface-variant'} />
                     <div>
-                      <p className="text-[14px] font-semibold">Full Payment</p>
-                      <p className="text-[14px] text-on-surface-variant">Cover the entire remaining: {formatKzt(remaining)}</p>
+                      <p className="text-[14px] font-semibold">{t('donate.full')}</p>
+                      <p className="text-[14px] text-on-surface-variant">{t('donate.fullDesc', { amount: formatKzt(remaining) })}</p>
                     </div>
                   </button>
 
@@ -170,8 +171,8 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
                   >
                     <CreditCard size={20} className={paymentType === 'partial' ? 'text-secondary' : 'text-on-surface-variant'} />
                     <div>
-                      <p className="text-[14px] font-semibold">Partial (Crowdfunding)</p>
-                      <p className="text-[14px] text-on-surface-variant">Contribute any amount</p>
+                      <p className="text-[14px] font-semibold">{t('donate.partial')}</p>
+                      <p className="text-[14px] text-on-surface-variant">{t('donate.partialDesc')}</p>
                     </div>
                   </button>
 
@@ -183,8 +184,8 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
                   >
                     <Repeat size={20} className={paymentType === 'subscription' ? 'text-secondary' : 'text-on-surface-variant'} />
                     <div>
-                      <p className="text-[14px] font-semibold">Monthly Subscription</p>
-                      <p className="text-[14px] text-on-surface-variant">Auto-distribute to most urgent requests</p>
+                      <p className="text-[14px] font-semibold">{t('donate.subscription')}</p>
+                      <p className="text-[14px] text-on-surface-variant">{t('donate.subscriptionDesc')}</p>
                     </div>
                   </button>
                 </div>
@@ -192,13 +193,13 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
               {paymentType === 'partial' && (
                 <div>
-                  <label className="block text-[14px] font-semibold mb-2">Amount (₸)</label>
+                  <label className="block text-[14px] font-semibold mb-2">{t('donate.amountLabel')}</label>
                   <input
                     type="number"
                     min="100"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    placeholder="e.g. 2000"
+                    placeholder={t('donate.amountPlaceholder')}
                     className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
                   />
                 </div>
@@ -206,17 +207,17 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
 
               {paymentType === 'subscription' && (
                 <div>
-                  <label className="block text-[14px] font-semibold mb-2">Monthly limit (₸)</label>
+                  <label className="block text-[14px] font-semibold mb-2">{t('donate.monthlyLimit')}</label>
                   <input
                     type="number"
                     min="1000"
                     value={monthlyLimit}
                     onChange={(e) => setMonthlyLimit(e.target.value)}
-                    placeholder="e.g. 5000"
+                    placeholder={t('donate.monthlyLimitPlaceholder')}
                     className="w-full p-3 rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"
                   />
                   <p className="text-[14px] text-on-surface-variant mt-2">
-                    Each month, this amount is auto-charged and distributed to the most urgent requests.
+                    {t('donate.monthlyDesc')}
                   </p>
                 </div>
               )}
@@ -226,7 +227,7 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
                 disabled={loading}
                 className="w-full bg-primary text-on-primary py-4 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
-                {loading ? 'Processing...' : user ? 'Confirm Donation' : 'Sign In to Donate'}
+                {loading ? t('donate.processing') : user ? t('donate.confirm') : t('donate.signInToDonate')}
               </button>
             </div>
           </>

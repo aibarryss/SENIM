@@ -67,3 +67,15 @@ export interface DonationIntent {
   status: 'pending' | 'confirmed' | 'rejected';
   created_at: string;
 }
+
+export type SusnVerificationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface SusnVerificationRequest {
+  id: string;
+  user_id: string;
+  document_path: string;
+  status: SusnVerificationStatus;
+  reviewer_note: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}

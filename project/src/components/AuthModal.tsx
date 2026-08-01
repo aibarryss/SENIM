@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { X, User, Heart, Store, Upload, CheckCircle, Loader2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { X, User, Heart, Store, Upload, CheckCircle, FileText } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
+import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/lib/types';
 
 interface AuthModalProps {
@@ -10,15 +12,17 @@ interface AuthModalProps {
 
 export default function AuthModal({ open, onClose }: AuthModalProps) {
   const { signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<'choose' | 'signup' | 'login'>('choose');
+  const { t } = useI18n();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<'choose' | 'signup' | 'login' | 'success'>('choose');
   const [role, setRole] = useState<UserRole>('donor');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [docUploaded, setDocUploaded] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [verified, setVerified] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [successKind, setSuccessKind] = useState<'created' | 'pending'>('created');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,9 +34,9 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     setPassword('');
     setName('');
     setPhone('');
-    setDocUploaded(false);
-    setVerifying(false);
-    setVerified(false);
+    setSelectedFile(null);
+    setUploading(false);
+    setSuccessKind('created');
     setError(null);
   };
 
@@ -46,13 +50,13 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
     setMode('signup');
   };
 
-  const handleUpload = () => {
-    setDocUploaded(true);
-    setVerifying(true);
-    setTimeout(() => {
-      setVerifying(false);
-      setVerified(true);
-    }, 2000);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setSelectedFile(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,26 +72,59 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       } else {
         handleClose();
       }
-    } else {
-      if (role === 'susn' && !verified) {
-        setError('Please upload and complete AI verification of your documents first.');
+      return;
+    }
+
+    // mode === 'signup'
+    const { error, user } = await signUp(email, password, role, name || undefined);
+    if (error) {
+      setError(error);
+      setLoading(false);
+      return;
+    }
+
+    // For SUSN users with a selected document: upload to private Storage
+    // and insert a pending verification request. The verified flag is
+    // NEVER set from the client — only a service-role backend process
+    // can approve the request and flip profiles.verified to true.
+    if (role === 'susn' && selectedFile && user) {
+      setUploading(true);
+      const ext = selectedFile.name.split('.').pop() ?? 'bin';
+      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('verification-documents')
+        .upload(path, selectedFile);
+      if (uploadError) {
+        setError(t('auth.uploadError'));
+        setUploading(false);
         setLoading(false);
         return;
       }
-      const { error } = await signUp(email, password, role, name || undefined);
-      setLoading(false);
-      if (error) {
-        setError(error);
-      } else {
-        handleClose();
+      const { error: insertError } = await supabase.from('susn_verification_requests').insert({
+        user_id: user.id,
+        document_path: path,
+        status: 'pending',
+      });
+      if (insertError) {
+        setError(t('auth.submitError'));
+        setUploading(false);
+        setLoading(false);
+        return;
       }
+      setUploading(false);
+      setSuccessKind('pending');
+    } else {
+      setSuccessKind('created');
     }
+
+    setLoading(false);
+    setMode('success');
   };
 
   const roleOptions: { value: UserRole; label: string; desc: string; icon: typeof User }[] = [
-    { value: 'donor', label: 'Donor', desc: 'Help those in need with direct contributions', icon: Heart },
-    { value: 'susn', label: 'Assistance Seeker', desc: 'Request verified aid from the community', icon: User },
-    { value: 'partner', label: 'Partner Business', desc: 'Register your store as a redemption point', icon: Store },
+    { value: 'donor', label: t('auth.role.donor.label'), desc: t('auth.role.donor.desc'), icon: Heart },
+    { value: 'susn', label: t('auth.role.susn.label'), desc: t('auth.role.susn.desc'), icon: User },
+    { value: 'partner', label: t('auth.role.partner.label'), desc: t('auth.role.partner.desc'), icon: Store },
   ];
 
   return (
@@ -98,7 +135,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       >
         <div className="flex items-center justify-between p-6 border-b border-outline-variant">
           <h2 className="text-xl font-bold text-primary">
-            {mode === 'choose' ? 'Join SENIM' : mode === 'login' ? 'Welcome Back' : 'Create Account'}
+            {mode === 'choose' ? t('auth.joinSenim') : mode === 'login' ? t('auth.welcomeBack') : mode === 'success' ? t('auth.accountCreated') : t('common.createAccount')}
           </h2>
           <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors">
             <X size={24} />
@@ -114,7 +151,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
 
           {mode === 'choose' && (
             <div className="space-y-3">
-              <p className="text-[14px] text-on-surface-variant mb-4">Choose how you want to participate in SENIM:</p>
+              <p className="text-[14px] text-on-surface-variant mb-4">{t('auth.choosePrompt')}</p>
               {roleOptions.map((opt) => {
                 const Icon = opt.icon;
                 return (
@@ -135,9 +172,9 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               })}
               <div className="pt-4 border-t border-outline-variant text-center">
                 <p className="text-[14px] text-on-surface-variant">
-                  Already have an account?{' '}
+                  {t('auth.alreadyHaveAccount')}{' '}
                   <button onClick={() => setMode('login')} className="text-secondary font-semibold hover:underline">
-                    Sign In
+                    {t('common.signIn')}
                   </button>
                 </p>
               </div>
@@ -147,7 +184,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
           {mode === 'login' && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[14px] font-semibold mb-2">Email</label>
+                <label className="block text-[14px] font-semibold mb-2">{t('common.email')}</label>
                 <input
                   type="email"
                   required
@@ -157,7 +194,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-[14px] font-semibold mb-2">Password</label>
+                <label className="block text-[14px] font-semibold mb-2">{t('common.password')}</label>
                 <input
                   type="password"
                   required
@@ -171,12 +208,12 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 disabled={loading}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? t('auth.signingIn') : t('common.signIn')}
               </button>
               <p className="text-center text-[14px] text-on-surface-variant">
-                New to SENIM?{' '}
+                {t('auth.newToSenim')}{' '}
                 <button type="button" onClick={() => setMode('choose')} className="text-secondary font-semibold hover:underline">
-                  Create Account
+                  {t('common.createAccount')}
                 </button>
               </p>
             </form>
@@ -185,11 +222,11 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
           {mode === 'signup' && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="p-3 rounded-lg bg-surface-container-low text-[14px] text-on-surface-variant mb-2">
-                Registering as: <span className="font-semibold text-primary capitalize">{role === 'susn' ? 'Assistance Seeker' : role}</span>
+                {t('auth.registeringAs')} <span className="font-semibold text-primary">{role === 'susn' ? t('auth.role.susn.label') : roleOptions.find((o) => o.value === role)?.label ?? role}</span>
               </div>
 
               <div>
-                <label className="block text-[14px] font-semibold mb-2">Email</label>
+                <label className="block text-[14px] font-semibold mb-2">{t('common.email')}</label>
                 <input
                   type="email"
                   required
@@ -199,7 +236,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-[14px] font-semibold mb-2">Password</label>
+                <label className="block text-[14px] font-semibold mb-2">{t('common.password')}</label>
                 <input
                   type="password"
                   required
@@ -211,7 +248,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
               </div>
               <div>
                 <label className="block text-[14px] font-semibold mb-2">
-                  Display Name {role === 'donor' && <span className="text-on-surface-variant font-normal">(optional — stay anonymous)</span>}
+                  {t('auth.displayName')} {role === 'donor' && <span className="text-on-surface-variant font-normal">{t('auth.displayNameOptional')}</span>}
                 </label>
                 <input
                   type="text"
@@ -221,7 +258,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
                 />
               </div>
               <div>
-                <label className="block text-[14px] font-semibold mb-2">Phone Number</label>
+                <label className="block text-[14px] font-semibold mb-2">{t('auth.phoneNumber')}</label>
                 <input
                   type="tel"
                   required
@@ -234,50 +271,88 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
 
               {role === 'susn' && (
                 <div className="p-4 rounded-xl border border-outline-variant bg-surface-container-low">
-                  <p className="text-[14px] font-semibold mb-2">AI Document Verification</p>
-                  <p className="text-[14px] text-on-surface-variant mb-3">
-                    Upload your eGov certificate (large family, disability, single parent, etc.). Our AI will verify seals, barcodes, and expiry dates.
+                  <p className="text-[14px] font-semibold mb-2">{t('auth.verificationTitle')}</p>
+                  <p className="text-[14px] text-on-surface-variant mb-1">
+                    {t('auth.verificationBody')}
                   </p>
-                  {!docUploaded ? (
+                  <p className="text-[12px] text-on-surface-variant mb-3">
+                    {t('auth.verificationOptional')}
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*,.pdf"
+                    onChange={handleFileSelect}
+                  />
+                  {!selectedFile ? (
                     <button
                       type="button"
-                      onClick={handleUpload}
+                      onClick={triggerFileInput}
                       className="w-full p-4 border-2 border-dashed border-outline-variant rounded-lg flex items-center justify-center gap-2 text-[14px] text-on-surface-variant hover:border-secondary hover:text-secondary transition-all"
                     >
-                      <Upload size={20} /> Upload Certificate
+                      <Upload size={20} /> {t('auth.uploadCertificate')}
                     </button>
-                  ) : verifying ? (
-                    <div className="flex items-center gap-2 text-[14px] text-secondary">
-                      <Loader2 size={20} className="animate-spin" /> AI is verifying your document...
+                  ) : (
+                    <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-surface-container-high">
+                      <div className="flex items-center gap-2 text-[14px] text-on-surface-variant min-w-0">
+                        <FileText size={20} className="shrink-0 text-secondary" />
+                        <span className="truncate">{selectedFile.name}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={triggerFileInput}
+                        className="text-[14px] text-secondary font-semibold hover:underline shrink-0"
+                      >
+                        {t('auth.uploadCertificate')}
+                      </button>
                     </div>
-                  ) : verified ? (
-                    <div className="flex items-center gap-2 text-[14px] text-secondary font-semibold">
-                      <CheckCircle size={20} /> Document verified successfully
-                    </div>
-                  ) : null}
+                  )}
                 </div>
               )}
 
               {role === 'partner' && (
                 <div className="p-4 rounded-xl bg-surface-container-low text-[14px] text-on-surface-variant">
-                  Your business registration will be reviewed by our team within 2-3 business days. You'll receive a digital partnership agreement via email.
+                  {t('auth.partnerReview')}
                 </div>
               )}
 
               {role === 'donor' && (
                 <div className="p-4 rounded-xl bg-surface-container-low text-[14px] text-on-surface-variant">
-                  You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request.
+                  {t('auth.donorBankNote')}
                 </div>
               )}
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || uploading}
                 className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                {loading || uploading ? t('auth.creatingAccount') : t('common.createAccount')}
               </button>
             </form>
+          )}
+
+          {mode === 'success' && (
+            <div className="text-center space-y-4 py-4">
+              <div className="w-16 h-16 rounded-full bg-secondary-container mx-auto flex items-center justify-center">
+                <CheckCircle size={32} className="text-secondary" />
+              </div>
+              <h3 className="text-lg font-bold text-primary">
+                {successKind === 'pending' ? t('auth.verificationPending') : t('auth.accountCreated')}
+              </h3>
+              {successKind === 'pending' && (
+                <p className="text-[14px] text-on-surface-variant">
+                  {t('auth.accountCreatedPending')}
+                </p>
+              )}
+              <button
+                onClick={handleClose}
+                className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all"
+              >
+                {t('common.done')}
+              </button>
+            </div>
           )}
         </div>
       </div>

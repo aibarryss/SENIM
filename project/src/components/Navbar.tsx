@@ -1,23 +1,33 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import { useI18n, type Locale } from '@/lib/i18n';
 
 interface NavbarProps {
   onLoginClick: () => void;
   onDonateClick: () => void;
 }
 
+const locales: Locale[] = ['kk', 'ru', 'en'];
+
 export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { t, locale, setLocale } = useI18n();
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-[14px] font-semibold leading-5 tracking-[0.01em] transition-all duration-200 pb-1 ${
       isActive
         ? 'text-primary border-b-2 border-primary'
         : 'text-on-surface-variant hover:text-primary'
+    }`;
+
+  const localeBtnClass = (l: Locale) =>
+    `px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all ${
+      locale === l
+        ? 'bg-primary text-on-primary'
+        : 'text-on-surface-variant hover:bg-surface-container-high'
     }`;
 
   const handleDonate = () => {
@@ -44,24 +54,32 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
             SENIM
           </NavLink>
           <nav className="hidden md:flex gap-6 items-center">
-            <NavLink to="/impact" className={navLinkClass}>Impact</NavLink>
-            <NavLink to="/browse" className={navLinkClass}>Browse Requests</NavLink>
-            <NavLink to="/browse" className={navLinkClass}>Partner Stores</NavLink>
-            <NavLink to="/" className={navLinkClass}>How it Works</NavLink>
+            <NavLink to="/impact" className={navLinkClass}>{t('nav.impact')}</NavLink>
+            <NavLink to="/browse" className={navLinkClass}>{t('nav.browseRequests')}</NavLink>
+            <NavLink to="/browse" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
+            <NavLink to="/" className={navLinkClass}>{t('nav.howItWorks')}</NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-1 bg-surface-container-low rounded-lg p-1">
+            <Globe size={14} className="text-on-surface-variant ml-1.5" />
+            {locales.map((l) => (
+              <button key={l} onClick={() => setLocale(l)} className={localeBtnClass(l)}>
+                {t(`nav.locale.${l}`)}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleLogin}
             className="text-[14px] font-semibold text-on-surface hover:opacity-80 active:scale-95 transition-all"
           >
-            {user ? 'Sign Out' : 'Login'}
+            {user ? t('nav.signOut') : t('nav.login')}
           </button>
           <button
             onClick={handleDonate}
             className="bg-primary text-on-primary text-[14px] font-semibold px-6 py-2.5 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/10"
           >
-            Donate
+            {t('nav.donate')}
           </button>
           <button
             className="md:hidden"
@@ -73,10 +91,18 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
       </div>
       {mobileOpen && (
         <nav className="md:hidden flex flex-col gap-4 px-margin-mobile py-4 bg-surface-container-lowest border-b border-outline-variant">
-          <NavLink to="/impact" className={navLinkClass} onClick={handleNavClick}>Impact</NavLink>
-          <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>Browse Requests</NavLink>
-          <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>Partner Stores</NavLink>
-          <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>How it Works</NavLink>
+          <NavLink to="/impact" className={navLinkClass} onClick={handleNavClick}>{t('nav.impact')}</NavLink>
+          <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.browseRequests')}</NavLink>
+          <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
+          <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>{t('nav.howItWorks')}</NavLink>
+          <div className="flex items-center gap-1 pt-2 border-t border-outline-variant w-fit bg-surface-container-low rounded-lg p-1">
+            <Globe size={14} className="text-on-surface-variant ml-1.5" />
+            {locales.map((l) => (
+              <button key={l} onClick={() => setLocale(l)} className={localeBtnClass(l)}>
+                {t(`nav.locale.${l}`)}
+              </button>
+            ))}
+          </div>
         </nav>
       )}
     </header>
