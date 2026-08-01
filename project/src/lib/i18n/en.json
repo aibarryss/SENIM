@@ -47,7 +47,7 @@
     "downloadApp": "Download App",
     "appStore": "App Store",
     "googlePlay": "Google Play",
-    "copyright": "© 2024 SENIM Kazakhstan. All rights reserved. Registered Charity No. 0012345"
+    "copyright": "© 2026 SENIM Kazakhstan. All rights reserved. Registered Charity No. 0012345"
   },
   "auth": {
     "joinSenim": "Join SENIM",
@@ -220,7 +220,7 @@
   "impact": {
     "title": "Live Impact Dashboard",
     "subtitle": "Real-time verification of every Tenge donated. SENIM ensures your contribution reaches those in need with 100% blockchain-backed transparency.",
-    "fullAudit": "Full Audit 2024",
+    "fullAudit": "Full Audit 2026",
     "shareReport": "Share Report",
     "hotspots": "Impact Hotspots",
     "liveUpdates": "Live Updates (Last 5 mins)",
@@ -246,7 +246,7 @@
     "auditTitle": "Audit & Legal Core",
     "auditBody": "Access our full ledger, independent audit reports, and legal compliance documents. We operate on a 'Zero Shadow' policy.",
     "audit": {
-      "q3": "Q3 2024 Audit Report",
+      "q3": "Q1 2026 Audit Report",
       "ledger": "Blockchain Ledger Access",
       "tax": "Tax Exemption Status"
     },
