@@ -59,13 +59,13 @@ export default function App() {
             </Routes>
           </div>
           <Footer />
-          <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
           <DonationModal
             campaign={donationCampaign}
             open={donationCampaign !== null}
             onClose={() => setDonationCampaign(null)}
             onRequireAuth={openAuth}
           />
+          <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
         </div>
       </BrowserRouter>
     </AuthProvider>
