@@ -1,0 +1,10 @@
+[build]
+  base = "project"
+  command = "npm run build"
+  publish = "project/dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+# SPA fallback — without this, refreshing on /browse or /impact 404s.

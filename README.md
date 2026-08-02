@@ -16,6 +16,7 @@ SENIM — это MVP благотворительной платформы дл�
 - [Demo Flow для презентации](#demo-flow-для-презентации)
 - [Настройка облачного Supabase](#настройка-облачного-supabase)
 - [Деплой на Vercel](#деплой-на-vercel)
+- [Deployment](#deployment)
 - [Скрипты](#скрипты)
 - [Архитектура](#архитектура)
 - [REAL vs MOCK/DEMO](#real-vs-mockdemo)
@@ -279,6 +280,59 @@ npm run demo:seed
 ### 6. Проверить
 
 Откройте URL Vercel → войдите под `demo.admin@senim.test` / `Demo1234!`
+
+---
+
+## Deployment
+
+Раздел описывает конфигурацию деплоя frontend-части SENIM на Netlify / Cloudflare Pages (SPA). Конфигурационные файлы уже включены в репозиторий:
+
+- `project/netlify.toml` — конфигурация сборки + SPA-redirects для Netlify
+- `project/public/_redirects` — fallback SPA-redirects (Cloudflare Pages, а также резерв для Netlify)
+
+### Frontend env vars
+
+Обязательные переменные окружения для сборки frontend (уже описаны в `project/.env.example`):
+
+| Имя | Значение | Примечание |
+|-----|----------|-----------|
+| `VITE_SUPABASE_URL` | `https://your-project.supabase.co` | URL облачного Supabase |
+| `VITE_SUPABASE_ANON_KEY` | `eyJ...anon-key...` | anon public key |
+
+> ⚠️ **НЕ добавляйте** `SUPABASE_SERVICE_ROLE_KEY` в переменные окружения хостинга — он нужен только для локальных скриптов `npm run demo:seed` / `demo:reset` и не должен попадать в frontend-бандл.
+
+### Конфигурация сборки
+
+| Параметр | Значение |
+|----------|---------|
+| Base directory | `project` |
+| Build command | `npm run build` |
+| Publish directory | `project/dist` |
+| Framework preset | Vite |
+
+### SPA routing (важно!)
+
+Приложение использует client-side routing (React Router). Без SPA-fallback обновление страницы или прямой переход по URL (например, `/browse` или `/impact`) вернёт **404** на хостинге.
+
+Решение включено в репозиторий:
+
+- **Netlify** — `project/netlify.toml` содержит `[[redirects]]` с `from = "/*"` → `to = "/index.html"` (status 200)
+- **Cloudflare Pages / fallback** — `project/public/_redirects` содержит `/*    /index.html   200` (Vite копирует `public/` в `dist/` при сборке)
+
+> Проверка: после deploy preview откройте напрямую через адресную строку `/browse` или `/impact` (не кликом в приложении) — страница должна загрузиться без 404.
+
+### Backend (Supabase)
+
+- **Миграции** применяются через `supabase db push` против linked-проекта:
+
+  ```bash
+  supabase link --project-ref your-project-ref
+  supabase db push
+  ```
+
+  Файлы миграций находятся в `project/supabase/migrations/`.
+
+- **Edge Function `payment-webhook`** НЕ деплоится до выбора платёжного провайдера (задача TASK-013b). Сейчас единственный путь пожертвования — Mock Payment (симуляция без реальных денег). Функция `verify-susn-document` деплоится отдельно через `supabase functions deploy verify-susn-document`.
 
 ---
 
