@@ -210,13 +210,15 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       // No ai_result is sent from the client: the AI/OCR analysis is performed
       // by the backend (Edge Function) and stored server-side. Trusting a
       // client-supplied ai_result would let anyone fake a 'valid' check.
-      const { error: insertError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from("susn_verification_requests")
         .insert({
           user_id: user.id,
           document_path: path,
           status: "pending",
-        });
+        })
+        .select("id")
+        .single();
       if (insertError) {
         setError(t("auth.submitError"));
         setUploading(false);
@@ -225,6 +227,17 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
       }
       setUploading(false);
       setSuccessKind("pending");
+      // Fire-and-forget: ask the Edge Function to compute an AI plausibility
+      // result for the admin. Best-effort — the admin can still review the
+      // document manually if the AI call fails or is slow. We deliberately do
+      // NOT await this so the UI success state is not blocked on AI completion.
+      if (insertData?.id) {
+        supabase.functions
+          .invoke("verify-susn-document", {
+            body: { request_id: insertData.id },
+          })
+          .catch(() => {});
+      }
     } else if (role === "partner" && user) {
       // Insert a real partner application with store details. Status is
       // 'pending' and can only be transitioned by a service-role backend

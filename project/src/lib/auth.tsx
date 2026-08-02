@@ -80,8 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, role: UserRole, displayName?: string, phone?: string) => {
     // Profile creation is handled atomically by the `handle_new_user`
-    // trigger on auth.users (migration 20260801141200). We pass the
-    // profile fields through user_metadata so the trigger can read them.
+    // trigger on auth.users (migration 20260801141200, fixed by
+    // 20260802234000). We pass the profile fields through `options.data`,
+    // which GoTrue stores in `auth.users.raw_user_meta_data` — the
+    // trigger reads them from `NEW.raw_user_meta_data`.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

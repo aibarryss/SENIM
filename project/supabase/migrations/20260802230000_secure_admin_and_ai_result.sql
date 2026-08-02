@@ -4,9 +4,9 @@
 ## Security fixes
 1. Admin self-escalation is closed at the database level. The
    `handle_new_user` trigger (migration 20260801141200) previously accepted
-   `role` straight from user_metadata, so any client could register with
-   `role = 'admin'` and gain access to the admin RPCs. We re-create the
-   function to only ever assign a non-privileged role from the client;
+   `role` straight from `raw_user_meta_data`, so any client could register
+   with `role = 'admin'` and gain access to the admin RPCs. We re-create
+   the function to only ever assign a non-privileged role from the client;
    `admin` is provisioned exclusively by the backend / service role.
 2. `ai_result` on `susn_verification_requests` is no longer writable by
    the client. The client must insert a request without it; the result is
@@ -15,8 +15,15 @@
 */
 
 -- =========================================================
--- 1. handle_new_user: never assign 'admin' from user_metadata
+-- 1. handle_new_user: never assign 'admin' from raw_user_meta_data
 -- =========================================================
+-- NOTE: GoTrue stores Supabase Auth `options.data` in the
+-- `raw_user_meta_data` column of `auth.users`, NOT in a column named
+-- `user_metadata`. Using `NEW.user_metadata` raises at runtime (column
+-- does not exist), which rolls back the entire auth.users INSERT and
+-- breaks every signUp(). This was the bug fixed by this migration's
+-- successor (20260802234000); it is corrected here too so that a fresh
+-- `db reset` produces a correct function without relying on the patch.
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -28,14 +35,15 @@ BEGIN
   VALUES (
     NEW.id,
     -- The client may only self-select a non-privileged role. 'admin' is
-    -- never accepted from user_metadata: enforcing this in the trigger
-    -- closes the self-escalation vector even if the UI or API is bypassed.
-    CASE WHEN COALESCE(NEW.user_metadata->>'role', 'donor')
+    -- never accepted from raw_user_meta_data: enforcing this in the
+    -- trigger closes the self-escalation vector even if the UI or API
+    -- is bypassed.
+    CASE WHEN COALESCE(NEW.raw_user_meta_data->>'role', 'donor')
               IN ('donor', 'susn', 'partner')
-         THEN COALESCE(NEW.user_metadata->>'role', 'donor')
+         THEN COALESCE(NEW.raw_user_meta_data->>'role', 'donor')
          ELSE 'donor' END,
-    NEW.user_metadata->>'display_name',
-    NEW.user_metadata->>'phone',
+    NEW.raw_user_meta_data->>'display_name',
+    NEW.raw_user_meta_data->>'phone',
     false
   )
   ON CONFLICT (id) DO NOTHING;
