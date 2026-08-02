@@ -43,7 +43,13 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
 
   const fetchCampaigns = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('campaigns').select('*').eq('status', 'active').order('created_at', { ascending: false });
+    // Show both active and funded campaigns. Funded ones display a
+    // "Fully Funded" state with a disabled Donate button.
+    let query = supabase
+      .from('campaigns')
+      .select('*')
+      .in('status', ['active', 'funded'])
+      .order('created_at', { ascending: false });
 
     const cats = Array.from(selectedCategories).filter((c) => c !== 'all') as CampaignCategory[];
     if (cats.length > 0) {
@@ -181,6 +187,7 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
                 {paginated.map((campaign) => {
+                  const isFunded = campaign.status === 'funded';
                   const pct = Math.min(100, Math.max(0, Math.round((campaign.raised_amount / campaign.goal_amount) * 100)));
                   const urgency = campaign.urgency ? urgencyConfig[campaign.urgency] : null;
                   const UrgencyIcon = urgency?.icon;
@@ -204,7 +211,12 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                           <span className="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-medium text-primary uppercase tracking-wider">
                             {catLabel}
                           </span>
-                          {urgency && UrgencyIcon && (
+                          {isFunded && (
+                            <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[12px] font-medium flex items-center gap-1">
+                              <BadgeCheck size={14} /> {t('browse.funded')}
+                            </span>
+                          )}
+                          {!isFunded && urgency && UrgencyIcon && (
                             <span className={`${urgency.className} px-3 py-1 rounded-full text-[12px] font-medium flex items-center gap-1`}>
                               <UrgencyIcon size={14} /> {urgency.label}
                             </span>
@@ -226,17 +238,31 @@ export default function BrowseRequests({ onDonateClick }: BrowseRequestsProps) {
                             </div>
                             <div className="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-secondary rounded-full transition-all duration-500"
+                                className={`h-full rounded-full transition-all duration-500 ${isFunded ? 'bg-emerald-500' : 'bg-secondary'}`}
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
+                            {isFunded && (
+                              <p className="text-[13px] font-semibold text-emerald-700 mt-2">
+                                {t('browse.fullyFunded')}
+                              </p>
+                            )}
                           </div>
-                          <button
-                            onClick={() => onDonateClick(campaign)}
-                            className="w-full bg-primary text-on-primary text-[14px] font-semibold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                          >
-                            {t('common.donateNow')} <Heart size={18} />
-                          </button>
+                          {isFunded ? (
+                            <button
+                              disabled
+                              className="w-full bg-surface-container-high text-on-surface-variant text-[14px] font-semibold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                              {t('browse.fullyFunded')} <BadgeCheck size={18} />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => onDonateClick(campaign)}
+                              className="w-full bg-primary text-on-primary text-[14px] font-semibold py-4 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                              {t('common.donateNow')} <Heart size={18} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

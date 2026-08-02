@@ -35,6 +35,9 @@
     "signOut": "Sign Out",
     "donate": "Donate",
     "createRequest": "Request Help",
+    "myDonations": "My Donations",
+    "myRequests": "My Requests",
+    "partnerDashboard": "Partner Dashboard",
     "admin": "Admin",
     "locale": {
       "kk": "KAZ",
@@ -127,8 +130,8 @@
     "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request."
   },
   "donate": {
-    "successTitle": "Donation Intent Recorded",
-    "successBody": "We've saved your pledge. Payment processing isn't live yet, so no charge has been made and the campaign total hasn't changed — our team will follow up once payments are enabled.",
+    "successTitle": "Donation Successful",
+    "successBody": "Your demo donation has been processed successfully. You can now generate a voucher for the recipient.",
     "done": "Done",
     "signInNotice": "You'll need to sign in to donate. Choose an amount below, then continue to sign in.",
     "goal": "Goal",
@@ -147,10 +150,43 @@
     "monthlyLimitPlaceholder": "e.g. 5000",
     "monthlyDesc": "Each month, this amount is auto-charged and distributed to the most urgent requests.",
     "processing": "Processing...",
-    "confirm": "Confirm Donation",
+    "confirm": "Proceed to Payment",
     "signInToDonate": "Sign In to Donate",
     "invalidAmount": "Please enter a valid amount (a positive whole number).",
-    "insertError": "Could not record your donation intent. Please try again."
+    "insertError": "Could not save your donation. Please try again.",
+    "paymentId": "Payment ID",
+    "demoTransactionNote": "Demo transaction — no real money was charged."
+  },
+  "mockPayment": {
+    "title": "SENIM Demo Payment",
+    "subtitle": "Simulated payment for MVP",
+    "demoBadge": "DEMO PAYMENT",
+    "demoWarning": "This is a simulated payment for the SENIM MVP. No real money will be charged.",
+    "amountLabel": "Amount to pay",
+    "methodLabel": "Payment method",
+    "method": {
+      "card": "Visa / Mastercard (Demo)",
+      "kaspi": "Kaspi (Demo)",
+      "halyk": "Halyk (Demo)"
+    },
+    "demoCardNote": "Demo card — data is not stored or transmitted",
+    "cardNumber": "Card number",
+    "expiry": "Expiry date",
+    "confirm": "Confirm Demo Payment",
+    "simulateFailure": "Simulate payment failure",
+    "cancel": "Cancel",
+    "processing": "Processing payment...",
+    "processingHint": "Please wait. This is a simulation — no real money is being charged.",
+    "succeeded": "Payment Successful",
+    "succeededBody": "Your demo donation of {amount} has been processed successfully.",
+    "paymentId": "Demo Payment ID",
+    "demoTransactionNote": "Demo transaction — no real money was charged.",
+    "failed": "Payment Failed",
+    "failedBody": "The payment failed. No money was charged. Please try again.",
+    "retry": "Retry",
+    "cancelled": "Payment Cancelled",
+    "cancelledBody": "The payment was cancelled. No money was charged.",
+    "close": "Close"
   },
   "landing": {
     "badge": "100% Direct Verification via AI",
@@ -225,7 +261,9 @@
       "urgent": "Urgent",
       "high_priority": "High Priority",
       "verified": "Verified"
-    }
+    },
+    "funded": "Funded",
+    "fullyFunded": "Fully Funded"
   },
   "createRequest": {
     "title": "New Assistance Request",
@@ -293,6 +331,131 @@
       "documentValid": "Document is valid",
       "nameMatch": "Name matches profile",
       "dateValid": "Dates are valid"
+    }
+  },
+  "myDonations": {
+    "title": "My Donations",
+    "subtitle": "Your donation history and the funding progress of each request.",
+    "empty": "No donations yet. Pick a request and make a donation.",
+    "amount": "Donation amount",
+    "paymentId": "Payment ID",
+    "status": "Status",
+    "statusConfirmed": "Confirmed",
+    "statusPending": "Pending",
+    "statusRejected": "Rejected",
+    "generalFund": "General Fund",
+    "of": "of {goal}",
+    "fullyFunded": "Fully Funded",
+    "fundedProgress": "{raised} / {goal}",
+    "helpDelivered": " · Help Delivered"
+  },
+  "myRequests": {
+    "title": "My Requests",
+    "subtitle": "Your assistance requests, vouchers, and notifications.",
+    "notificationsTitle": "Notifications",
+    "notificationsEmpty": "No notifications.",
+    "markAllRead": "Mark all as read",
+    "demoNotificationsNote": "Demo: notifications are stored locally in your browser.",
+    "requestsTitle": "My Requests",
+    "requestsEmpty": "No requests yet. Create a new one via \"Request Help\".",
+    "statusActive": "Active",
+    "statusFunded": "Funded",
+    "fullyFunded": "Fully Funded",
+    "vouchersTitle": "My Vouchers",
+    "vouchersEmpty": "No vouchers yet. Generate a demo voucher with the button below.",
+    "generateDemoVoucher": "Generate Demo Voucher",
+    "generating": "Generating...",
+    "defaultVoucherTitle": "Demo Assistance Voucher",
+    "redeemedAt": "Redeemed: {date}",
+    "maxVouchersReached": "You have reached the maximum number of demo vouchers (3).",
+    "requestHelpButton": "Request Help",
+    "notif": {
+      "funded": {
+        "title": "Your request has been funded",
+        "body": "Your request for Food Package has been fully funded."
+      },
+      "voucher_ready": {
+        "title": "Your voucher is ready",
+        "body": "Your QR voucher is ready to use at a partner store."
+      },
+      "help_received": {
+        "title": "Help received",
+        "body": "Your voucher has been successfully redeemed."
+      }
+    }
+  },
+  "partner": {
+    "title": "Partner Dashboard",
+    "subtitle": "Verify and redeem vouchers, view statistics.",
+    "demoNotice": "Demo mode: vouchers and statistics are stored locally in your browser.",
+    "activeVouchers": "Active Vouchers",
+    "redeemedToday": "Redeemed Today",
+    "totalAssistance": "Total Assistance Delivered",
+    "scanTitle": "Scan / Verify Voucher",
+    "scanHint": "Enter a voucher code, verify it, and redeem it.",
+    "createDemoVoucher": "Create Demo Voucher",
+    "demoVoucherTitle": "Demo Assistance Voucher",
+    "historyTitle": "Redemption History",
+    "historyEmpty": "No redeemed vouchers yet."
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "subtitle": "Rules for using the SENIM platform",
+      "lastUpdated": "Last updated",
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "body": "By using the SENIM platform, you agree to these terms. SENIM is a charity platform connecting donors, assistance seekers, and business partners in Kazakhstan."
+      },
+      "roles": {
+        "title": "User Roles",
+        "body": "SENIM supports three roles: donor (individual or entity making a donation), assistance seeker (SUSN — socially vulnerable person requesting aid), and partner business (store accepting vouchers). The role is selected at registration and cannot be changed by the user independently."
+      },
+      "verification": {
+        "title": "Recipient Verification",
+        "body": "Assistance seekers (SUSN) undergo verification. A document (large family certificate, disability, low-income proof) is uploaded to private storage and reviewed. AI provides a recommendation to the moderator, but the final decision is made by a human admin only. There is no automated verification — each case is reviewed manually."
+      },
+      "payments": {
+        "title": "Payments and Donations",
+        "body": "SENIM currently operates in demo mode: no real payments are processed. Mock payments simulate a transaction without charging real money. When real payments are enabled, a separate section with the payment provider's terms will be added."
+      },
+      "disclaimer": {
+        "title": "Legal Disclaimer",
+        "body": "These terms are a draft and do not replace proper legal review. Before processing real payments and personal data at scale, a lawyer's consultation is required."
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "subtitle": "How SENIM collects, stores, and uses data",
+      "lastUpdated": "Last updated",
+      "dataCollected": {
+        "title": "Data We Collect",
+        "body": "SENIM collects the minimum data necessary for the platform to operate:",
+        "email": "Email — for registration and notifications",
+        "phone": "Phone number — for contact and verification",
+        "documents": "Verification documents — eGov certificates (large family, disability, low-income)",
+        "donations": "Donation records — amount, campaign, payment status"
+      },
+      "documentStorage": {
+        "title": "Verification Document Storage",
+        "body": "Verification documents are uploaded to a private Supabase Storage bucket (verification-documents). Access is restricted by RLS policies: a user can only upload and read their own documents in their own folder. Admins have access for review. Documents are not published or shared with third parties."
+      },
+      "aiReview": {
+        "title": "AI-Assisted Review",
+        "body": "During document verification, AI is used to provide a recommendation to the moderator (confidence assessment, checking visible document elements). AI does not make the final decision — each document is reviewed by a human admin. AI does not have access to government databases or face-ID; it is a preliminary assessment tool, not automated verification."
+      },
+      "dataRetention": {
+        "title": "Data Retention",
+        "body": "User data is retained for the lifetime of the account. Verification documents are stored in private storage and may be deleted after review is completed or upon user request. Donation records are retained for audit and reporting purposes."
+      },
+      "userRights": {
+        "title": "User Rights",
+        "body": "Users have the right to request access to their data, correction, or deletion. To do so, contact support via email. SENIM does not sell or share personal data with third parties for marketing purposes."
+      },
+      "disclaimer": {
+        "title": "Legal Disclaimer",
+        "body": "This policy is a draft and does not replace proper legal review. Before processing real personal data at scale, a lawyer's consultation is required, and compliance with Kazakhstan's Personal Data Protection Law is necessary."
+      }
     }
   },
   "impact": {

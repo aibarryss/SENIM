@@ -18,6 +18,9 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
   const { t, locale, setLocale } = useI18n();
   const canCreateRequest = profile?.role === 'susn' && profile?.verified === true;
   const isAdmin = profile?.role === 'admin';
+  const isDonor = profile?.role === 'donor';
+  const isSusn = profile?.role === 'susn';
+  const isPartner = profile?.role === 'partner';
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-[14px] font-semibold leading-5 tracking-[0.01em] transition-all duration-200 pb-1 ${
@@ -62,6 +65,15 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
             {canCreateRequest && (
               <NavLink to="/create-request" className={navLinkClass}>{t('nav.createRequest')}</NavLink>
             )}
+            {isDonor && (
+              <NavLink to="/my-donations" className={navLinkClass}>{t('nav.myDonations')}</NavLink>
+            )}
+            {isSusn && (
+              <NavLink to="/my-requests" className={navLinkClass}>{t('nav.myRequests')}</NavLink>
+            )}
+            {isPartner && (
+              <NavLink to="/partner-dashboard" className={navLinkClass}>{t('nav.partnerDashboard')}</NavLink>
+            )}
             <NavLink to="/partners" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
             {isAdmin && (
               <NavLink to="/admin" className={navLinkClass}>{t('nav.admin')}</NavLink>
@@ -105,6 +117,15 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
           <NavLink to="/browse" className={navLinkClass} onClick={handleNavClick}>{t('nav.browseRequests')}</NavLink>
           {canCreateRequest && (
             <NavLink to="/create-request" className={navLinkClass} onClick={handleNavClick}>{t('nav.createRequest')}</NavLink>
+          )}
+          {isDonor && (
+            <NavLink to="/my-donations" className={navLinkClass} onClick={handleNavClick}>{t('nav.myDonations')}</NavLink>
+          )}
+          {isSusn && (
+            <NavLink to="/my-requests" className={navLinkClass} onClick={handleNavClick}>{t('nav.myRequests')}</NavLink>
+          )}
+          {isPartner && (
+            <NavLink to="/partner-dashboard" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerDashboard')}</NavLink>
           )}
           <NavLink to="/partners" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
           {isAdmin && (

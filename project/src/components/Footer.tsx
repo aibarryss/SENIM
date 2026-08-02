@@ -36,9 +36,9 @@ export default function Footer() {
         <div>
           <h4 className="text-[14px] font-semibold text-primary mb-6">{t('footer.legal')}</h4>
           <ul className="space-y-4">
-            <li><a href="#" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.terms')}</a></li>
-            <li><a href="#" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.privacy')}</a></li>
-            <li><a href="#" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.contactSupport')}</a></li>
+            <li><Link to="/terms" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.terms')}</Link></li>
+            <li><Link to="/privacy" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.privacy')}</Link></li>
+            <li><a href="mailto:support@senim.kz" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.contactSupport')}</a></li>
           </ul>
         </div>
         <div>

@@ -15,6 +15,11 @@ const ImpactDashboard = lazy(() => import('@/pages/ImpactDashboard'));
 const CreateRequest = lazy(() => import('@/pages/CreateRequest'));
 const PartnerStores = lazy(() => import('@/pages/PartnerStores'));
 const AdminReview = lazy(() => import('@/pages/AdminReview'));
+const MyDonations = lazy(() => import('@/pages/MyDonations'));
+const MyRequests = lazy(() => import('@/pages/MyRequests'));
+const PartnerDashboard = lazy(() => import('@/pages/PartnerDashboard'));
+const Terms = lazy(() => import('@/pages/Terms'));
+const Privacy = lazy(() => import('@/pages/Privacy'));
 
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -60,11 +65,37 @@ export default function App() {
                   }
                 />
                 <Route path="/impact" element={<ImpactDashboard />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
                 <Route
                   path="/admin"
                   element={
                     <ProtectedRoute requireRole="admin" onLoginClick={openAuth}>
                       <AdminReview />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/my-donations"
+                  element={
+                    <ProtectedRoute requireRole="donor" onLoginClick={openAuth}>
+                      <MyDonations />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/my-requests"
+                  element={
+                    <ProtectedRoute requireRole="susn" onLoginClick={openAuth}>
+                      <MyRequests />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/partner-dashboard"
+                  element={
+                    <ProtectedRoute requireRole="partner" onLoginClick={openAuth}>
+                      <PartnerDashboard />
                     </ProtectedRoute>
                   }
                 />

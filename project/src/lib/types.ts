@@ -73,6 +73,8 @@ export interface DonationIntent {
   amount: number;
   payment_type: 'full' | 'partial' | 'subscription';
   status: 'pending' | 'confirmed' | 'rejected';
+  /** Mock/real payment provider session id (idempotency key). */
+  provider_reference: string | null;
   created_at: string;
 }
 

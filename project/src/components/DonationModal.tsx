@@ -5,7 +5,9 @@ import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { localizedText } from '@/lib/i18n-text';
 import VoucherQR from '@/components/VoucherQR';
+import MockPaymentModal from '@/components/MockPaymentModal';
 import { createVoucher } from '@/lib/voucher-demo';
+import type { PaymentResult } from '@/lib/payment-provider';
 import type { Campaign } from '@/lib/types';
 
 interface DonationModalProps {
@@ -35,6 +37,9 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [voucherCode, setVoucherCode] = useState<string | null>(null);
+  const [mockPaymentOpen, setMockPaymentOpen] = useState(false);
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
 
   const handleClose = () => {
     setPaymentType('full');
@@ -44,6 +49,9 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
     setLoading(false);
     setError(null);
     setVoucherCode(null);
+    setMockPaymentOpen(false);
+    setPendingAmount(0);
+    setPaymentResult(null);
     onClose();
   };
 
@@ -94,21 +102,39 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
       return;
     }
 
+    // Open the Mock Payment Modal — the donation_intent is only created
+    // AFTER a successful mock payment (see handlePaymentSuccess). This
+    // ensures we never record an intent for a payment that didn't happen.
+    setPendingAmount(donateAmount);
+    setMockPaymentOpen(true);
+  };
+
+  /**
+   * Called by MockPaymentModal when the mock payment succeeds.
+   * Calls the secure record_mock_donation RPC which atomically:
+   *   1. Creates the donation_intent (status = 'confirmed')
+   *   2. Increments campaigns.raised_amount
+   *   3. Flips campaign.status to 'funded' if goal is reached
+   * The RPC uses provider_reference as an idempotency key, so a duplicate
+   * mock payment ID is a no-op (no double counting).
+   */
+  const handlePaymentSuccess = async (payment: PaymentResult) => {
+    if (!user) return;
+
+    setPaymentResult(payment);
+    setMockPaymentOpen(false);
     setLoading(true);
 
-    // This only records the donor's intent. It does NOT move money and does
-    // NOT change the campaign's raised_amount or platform stats — those are
-    // only ever updated by a trusted backend process once real payments are
-    // wired up. Real-money processing is out of scope for this task.
-    const { error: insertError } = await supabase.from('donation_intents').insert({
-      donor_id: user.id,
-      campaign_id: campaign.id === 'general' ? null : campaign.id,
-      amount: donateAmount,
-      payment_type: paymentType,
+    const { error: rpcError } = await supabase.rpc('record_mock_donation', {
+      p_donor_id: user.id,
+      p_campaign_id: campaign.id === 'general' ? null : campaign.id,
+      p_amount: pendingAmount,
+      p_payment_type: paymentType,
+      p_provider_reference: payment.id,
     });
 
     setLoading(false);
-    if (insertError) {
+    if (rpcError) {
       setError(t('donate.insertError'));
       return;
     }
@@ -146,9 +172,22 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
               <CheckCircle size={32} className="text-secondary" />
             </div>
             <h2 className="text-xl font-bold text-primary mb-2">{t('donate.successTitle')}</h2>
-            <p className="text-[14px] text-on-surface-variant mb-6">
+            <p className="text-[14px] text-on-surface-variant mb-4">
               {t('donate.successBody')}
             </p>
+            {paymentResult && (
+              <div className="mb-4 p-3 rounded-lg bg-surface-container-low text-left">
+                <p className="text-[12px] text-on-surface-variant mb-1">
+                  {t('donate.paymentId')}
+                </p>
+                <p className="text-[14px] font-mono font-semibold text-primary">
+                  {paymentResult.id}
+                </p>
+                <p className="text-[12px] text-on-surface-variant mt-2 italic">
+                  {t('donate.demoTransactionNote')}
+                </p>
+              </div>
+            )}
             {!voucherCode ? (
               <div className="mb-6">
                 <button
@@ -306,6 +345,15 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
           </>
         )}
       </div>
+
+      {/* Mock Payment Modal — z-[150] so it stacks above the DonationModal
+          (z-[100]) without overlapping the AuthModal (z-[200]). */}
+      <MockPaymentModal
+        open={mockPaymentOpen}
+        amount={pendingAmount}
+        onClose={() => setMockPaymentOpen(false)}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }
