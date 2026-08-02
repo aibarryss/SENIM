@@ -35,6 +35,7 @@
     "signOut": "Sign Out",
     "donate": "Donate",
     "createRequest": "Request Help",
+    "admin": "Admin",
     "locale": {
       "kk": "KAZ",
       "ru": "RUS",
@@ -72,6 +73,10 @@
       "partner": {
         "label": "Partner Business",
         "desc": "Register your store as a redemption point"
+      },
+      "admin": {
+        "label": "Admin",
+        "desc": "Manage verification and platform operations"
       }
     },
     "alreadyHaveAccount": "Already have an account?",
@@ -144,6 +149,7 @@
     "processing": "Processing...",
     "confirm": "Confirm Donation",
     "signInToDonate": "Sign In to Donate",
+    "invalidAmount": "Please enter a valid amount (a positive whole number).",
     "insertError": "Could not record your donation intent. Please try again."
   },
   "landing": {
@@ -240,6 +246,54 @@
     "notAuthorized": "Sign in to create an assistance request.",
     "notVerified": "You need to be verified to create an assistance request. Your application is under review — we'll reach out once approved.",
     "submitError": "Could not submit the request. Please try again."
+  },
+  "voucher": {
+    "title": "Demo QR Voucher",
+    "generate": "Generate Voucher",
+    "generateHint": "Creates a demo voucher with a QR code you can redeem at any partner store.",
+    "codeLabel": "Voucher Code",
+    "amount": "Amount",
+    "campaign": "Campaign",
+    "status": "Status",
+    "active": "Active",
+    "redeemed": "Redeemed",
+    "notFound": "Voucher not found.",
+    "scanTitle": "Partner Scan — Demo",
+    "scanHint": "Enter a voucher code from a generated demo voucher to validate and redeem it.",
+    "scanPlaceholder": "e.g. SENIM-ABCD-1234",
+    "scan": "Scan",
+    "scanning": "Scanning...",
+    "valid": "Valid Voucher",
+    "validBody": "This voucher can be redeemed for the following products.",
+    "invalid": "Invalid Voucher",
+    "invalidBody": "No voucher found for this code. Please check the code and try again.",
+    "alreadyRedeemed": "Already Redeemed",
+    "alreadyRedeemedBody": "This voucher has already been redeemed and can no longer be used.",
+    "redeem": "Redeem",
+    "redeeming": "Redeeming...",
+    "redeemedSuccess": "Voucher Redeemed",
+    "redeemedSuccessBody": "The voucher has been redeemed. Thank you for using SENIM.",
+    "demoNote": "Demo mode: vouchers are stored locally in your browser and do not move real money."
+  },
+  "admin": {
+    "title": "Admin Review",
+    "subtitle": "AI checks documents, but only an admin makes the final decision.",
+    "aiResult": "AI Verification Result",
+    "confidence": "AI Confidence",
+    "document": "Document",
+    "reviewerNote": "Reviewer note",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending",
+    "noApplications": "No verification applications yet.",
+    "anonymous": "Anonymous",
+    "check": {
+      "documentValid": "Document is valid",
+      "nameMatch": "Name matches profile",
+      "dateValid": "Dates are valid"
+    }
   },
   "impact": {
     "title": "Live Impact Dashboard",

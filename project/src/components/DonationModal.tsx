@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, CreditCard, Repeat, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import { localizedText } from '@/lib/i18n-text';
+import VoucherQR from '@/components/VoucherQR';
+import { createVoucher } from '@/lib/voucher-demo';
 import type { Campaign } from '@/lib/types';
 
 interface DonationModalProps {
@@ -15,6 +17,14 @@ interface DonationModalProps {
 
 type PaymentType = 'full' | 'partial' | 'subscription';
 
+/** Parses a user-entered amount string into a positive integer, or null if invalid. */
+function parseAmount(raw: string): number | null {
+  if (!raw) return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0 || !Number.isInteger(n)) return null;
+  return n;
+}
+
 export default function DonationModal({ campaign, open, onClose, onRequireAuth }: DonationModalProps) {
   const { user } = useAuth();
   const { t, locale } = useI18n();
@@ -24,6 +34,29 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [voucherCode, setVoucherCode] = useState<string | null>(null);
+
+  const handleClose = () => {
+    setPaymentType('full');
+    setAmount('');
+    setMonthlyLimit('');
+    setSuccess(false);
+    setLoading(false);
+    setError(null);
+    setVoucherCode(null);
+    onClose();
+  };
+
+  // Close on Escape for accessibility.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open || !campaign) return null;
 
@@ -37,20 +70,31 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
     }
 
     setError(null);
-    setLoading(true);
     let donateAmount = 0;
     if (paymentType === 'full') {
       donateAmount = remaining;
     } else if (paymentType === 'partial') {
-      donateAmount = parseInt(amount) || 0;
+      const parsed = parseAmount(amount);
+      if (parsed === null) {
+        setError(t('donate.invalidAmount'));
+        return;
+      }
+      donateAmount = parsed;
     } else {
-      donateAmount = parseInt(monthlyLimit) || 0;
+      const parsed = parseAmount(monthlyLimit);
+      if (parsed === null) {
+        setError(t('donate.invalidAmount'));
+        return;
+      }
+      donateAmount = parsed;
     }
 
     if (donateAmount <= 0) {
-      setLoading(false);
+      setError(t('donate.invalidAmount'));
       return;
     }
+
+    setLoading(true);
 
     // This only records the donor's intent. It does NOT move money and does
     // NOT change the campaign's raised_amount or platform stats — those are
@@ -71,14 +115,18 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
     setSuccess(true);
   };
 
-  const handleClose = () => {
-    setPaymentType('full');
-    setAmount('');
-    setMonthlyLimit('');
-    setSuccess(false);
-    setLoading(false);
-    setError(null);
-    onClose();
+  const handleGenerateVoucher = () => {
+    if (!campaign) return;
+    let voucherAmount = 0;
+    if (paymentType === 'full') {
+      voucherAmount = remaining;
+    } else if (paymentType === 'partial') {
+      voucherAmount = parseAmount(amount) ?? 0;
+    } else {
+      voucherAmount = parseAmount(monthlyLimit) ?? 0;
+    }
+    const code = createVoucher(voucherAmount, campaignTitle).code;
+    setVoucherCode(code);
   };
 
   const formatKzt = (n: number) => `₸${n.toLocaleString()}`;
@@ -86,6 +134,9 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={handleClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="donation-modal-title"
         className="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -98,6 +149,26 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
             <p className="text-[14px] text-on-surface-variant mb-6">
               {t('donate.successBody')}
             </p>
+            {!voucherCode ? (
+              <div className="mb-6">
+                <button
+                  onClick={handleGenerateVoucher}
+                  className="w-full bg-secondary text-on-secondary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all"
+                >
+                  {t('voucher.generate')}
+                </button>
+                <p className="text-[12px] text-on-surface-variant mt-2">
+                  {t('voucher.generateHint')}
+                </p>
+              </div>
+            ) : (
+              <div className="mb-6">
+                <VoucherQR code={voucherCode} />
+                <p className="text-[12px] text-on-surface-variant mt-2 text-center">
+                  {t('voucher.demoNote')}
+                </p>
+              </div>
+            )}
             <button
               onClick={handleClose}
               className="w-full bg-primary text-on-primary py-3 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all"
@@ -109,10 +180,10 @@ export default function DonationModal({ campaign, open, onClose, onRequireAuth }
           <>
             <div className="flex items-center justify-between p-6 border-b border-outline-variant">
               <div>
-                <h2 className="text-xl font-bold text-primary">{t('common.donateNow')}</h2>
+                <h2 id="donation-modal-title" className="text-xl font-bold text-primary">{t('common.donateNow')}</h2>
                 <p className="text-[14px] text-on-surface-variant mt-1">{campaignTitle}</p>
               </div>
-              <button onClick={handleClose} className="text-on-surface-variant hover:text-primary transition-colors">
+              <button onClick={handleClose} aria-label="Close" className="text-on-surface-variant hover:text-primary transition-colors">
                 <X size={24} />
               </button>
             </div>

@@ -68,12 +68,18 @@ SENIM/
     │   │   ├── AuthModal.tsx          # Модалка входа/регистрации (3 роли)
     │   │   ├── DonationModal.tsx      # Модалка пожертвования (3 типа платежа)
     │   │   ├── Footer.tsx             # Подвал: ссылки, соцсети, магазины приложений
-    │   │   └── Navbar.tsx             # Шапка: навигация, переключатель языка, login/donate
+    │   │   ├── Navbar.tsx             # Шапка: навигация, переключатель языка, login/donate
+    │   │   ├── ProtectedRoute.tsx     # Роут-обёртка для проверки роли/верификации
+    │   │   ├── VerificationBadge.tsx  # Бейдж статуса верификации
+    │   │   └── VoucherQR.tsx          # QR-ваучер
     │   ├── lib/
     │   │   ├── auth.tsx               # AuthProvider/useAuth (Supabase auth + profiles)
     │   │   ├── i18n.tsx               # I18nProvider/useI18n (kk/ru/en, плюрализация)
     │   │   ├── supabase.ts            # Создание Supabase-клиента из env
     │   │   ├── types.ts               # Доменные типы (Campaign, Profile, DonationIntent…)
+    │   │   ├── i18n-text.ts           # localizedText — fallback по локали
+    │   │   ├── cities.ts              # Справочник городов
+    │   │   ├── voucher-demo.ts        # Демо-генератор ваучеров (локальный)
     │   │   └── i18n/
     │   │       ├── kk.json            # Казахский — источник истины
     │   │       ├── ru.json            # Русский перевод
@@ -81,13 +87,22 @@ SENIM/
     │   └── pages/
     │       ├── LandingPage.tsx        # Главная (посадочная) страница
     │       ├── BrowseRequests.tsx     # Просмотр запросов помощи + фильтры
-    │       └── ImpactDashboard.tsx    # Дашборд влияния/статистики
+    │       ├── CreateRequest.tsx      # Создание запроса помощи (только верифицированные SUSN)
+    │       ├── ImpactDashboard.tsx    # Дашборд влияния/статистики
+    │       ├── PartnerStores.tsx      # Страница магазинов-партнёров
+    │       └── AdminReview.tsx        # Админ-ревью верификационных заявок
     └── supabase/
+        ├── config.toml                # Локальный конфиг Supabase CLI
         ├── migrations/
-        │   ├── 20260731034324_create_senim_schema.sql       # Начальная схема (5 таблиц)
-        │   └── 20260731063554_harden_rls_and_donation_intents.sql  # RLS + donation_intents
-        └── snippets/
-            └── Untitled query 833.sql                        # Диагностический запрос
+        │   ├── 20260731034324_create_senim_schema.sql
+        │   ├── 20260731063554_harden_rls_and_donation_intents.sql
+        │   ├── 20260801075240_susn_verification_review.sql
+        │   ├── 20260801083054_partner_applications.sql
+        │   ├── 20260801093050_susn_campaign_verified_rls.sql
+        │   ├── 20260801112600_campaign_i18n_columns.sql
+        │   ├── 20260802120000_admin_review_demo.sql
+        │   └── 20260802233000_campaign_creator_id.sql
+        └── functions/                 # Сейчас пуст (Edge Function удалена)
 ```
 
 ---
@@ -172,13 +187,16 @@ I18nProvider (в main.tsx)
 
 ### 6.2. Роутинг
 
-React Router DOM v6. Три маршрута:
+React Router DOM v6. Маршруты (в `App.tsx`, lazy-loaded):
 
 | Путь | Компонент | Назначение |
 |------|-----------|-----------|
 | `/` | `LandingPage` | Главная страница (миссия, фичи, статистика, CTA) |
 | `/browse` | `BrowseRequests` | Просмотр запросов помощи с фильтрами |
+| `/partners` | `PartnerStores` | Магазины-партнёры |
+| `/create-request` | `CreateRequest` | Создание запроса помощи (SUSN + verified) |
 | `/impact` | `ImpactDashboard` | Дашборд статистики и влияния |
+| `/admin` | `AdminReview` | Админ-ревью верификационных заявок (admin) |
 
 ### 6.3. Глобальное состояние модалок
 
@@ -204,31 +222,54 @@ React Router DOM v6. Три маршрута:
 #### `AuthModal.tsx`
 - Модалка входа/регистрации
 - Поддержка 3 ролей: `donor`, `susn`, `partner`
-- Использует `useAuth().signUp` и `useAuth().signIn`
+- Использует `useAuth().signUp`, `useAuth().signIn`, `useAuth().resetPassword`
 - Props: `open`, `onClose`
 
 #### `DonationModal.tsx`
 - Модалка пожертвования
 - 3 типа платежа: `full`, `partial`, `subscription`
+- Валидация суммы через `parseAmount` (положительное целое)
 - Props: `campaign`, `open`, `onClose`, `onRequireAuth`
+
+#### `ProtectedRoute.tsx`
+- Роут-обёртка: проверяет `user`, `role`, `verified`
+- При несовпадении — редирект на `/` или показ секции входа
+
+#### `VerificationBadge.tsx`
+- Бейдж статуса верификации пользователя
+
+#### `VoucherQR.tsx`
+- Демо-отображение QR-ваучера
 
 ### 6.5. Страницы
 
 #### `LandingPage.tsx`
 - Hero-секция с CTA-кнопками
-- Секция возможностей (3 карточки: "Запросить помощь", "Стать волонтёром", "Отслеживать влияние")
-- Секция статистики (4 метрики — захардкоженные демо-данные)
+- Секция возможностей (3 карточки)
+- Секция статистики (4 метрики — демо-данные)
 - Финальная CTA-секция
 - Props: `onLoginClick`
 
 #### `BrowseRequests.tsx`
-- Просмотр запросов помощи с фильтрацией
+- Просмотр запросов помощи с фильтрацией по категории/региону
 - Загружает данные из Supabase (таблица `campaigns`)
 - Props: `onDonateClick`
 
+#### `CreateRequest.tsx`
+- Форма создания запроса помощи
+- Доступно только для верифицированных SUSN (`requireRole="susn" requireVerified`)
+- При создании проставляет `creator_id = user.id`
+
 #### `ImpactDashboard.tsx`
 - Дашборд влияния/статистики
-- Загружает данные из Supabase (таблица `platform_stats`, `transactions`)
+- Загружает данные из Supabase (`platform_stats`, `transactions`)
+
+#### `PartnerStores.tsx`
+- Список магазинов-партнёров (демо/заглушка)
+
+#### `AdminReview.tsx`
+- Админ-ревью верификационных заявок SUSN
+- Читает/обновляет статус через RPC: `admin_list_verification_requests`, `admin_review_application`
 
 ---
 
@@ -256,15 +297,16 @@ interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email, password, role: UserRole, displayName?) => Promise<{ error: string | null }>;
+  signUp: (email, password, role, displayName?, phone?) => Promise<{ error: string | null }>;
   signIn: (email, password) => Promise<{ error: string | null }>;
+  resetPassword: (email) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 ```
 
 **Поток аутентификации:**
 
-1. `signUp` — регистрация через `supabase.auth.signUp`, затем вставка записи в таблицу `profiles` с `id = user.id`, `role`, `display_name`, `verified: false`
+1. `signUp` — регистрация через `supabase.auth.signUp`, затем вставка записи в таблицу `profiles` с `id = user.id`, `role`, `display_name`, `phone`, `verified: false`
 2. `signIn` — вход через `supabase.auth.signInWithPassword`
 3. `onAuthStateChange` — слушатель обновляет `session` и загружает `profile` из таблицы `profiles` (через `.maybeSingle()`)
 4. `signOut` — выход + очистка `profile`
@@ -280,7 +322,7 @@ interface AuthContextValue {
 - **`kk.json` — источник истины.** Тип `Dict = typeof kk` гарантирует, что `ru.json` и `en.json` структурно совпадают (compile-time ошибка при расхождении).
 - **Типобезопасные ключи:** `TKey` — union всех dot-путей к строковым листьям (например, `'nav.donate' | 'impact.time.minute.one'`).
 - **Интерполяция:** `t('key', { param: 'value' })` — подстановка `{param}` в строку.
-- **Плюрализация:** `tp('impact.time.minute', 5)` — русская система множественного числа (`one` / `few` / `many`), работает для всех 3 языков.
+- **Плюрализация:** `tp('impact.time.minute', n)` — русская система множественного числа (`one` / `few` / `many`), работает для всех 3 языков.
 - **Хранение:** язык сохраняется в `localStorage` под ключом `senim-locale`.
 - **Побочные эффекты:** при смене языка обновляются `document.documentElement.lang` и `document.title`.
 
@@ -299,7 +341,7 @@ interface I18nContextValue {
 
 ```ts
 // Роли пользователей
-type UserRole = 'donor' | 'susn' | 'partner';
+type UserRole = 'donor' | 'susn' | 'partner' | 'admin';
 
 // Категории кампаний
 type CampaignCategory = 'grocery' | 'medicine' | 'winter' | 'education';
@@ -309,16 +351,21 @@ type CampaignUrgency = 'urgent' | 'high_priority' | 'verified' | null;
 
 // Статус кампании
 type CampaignStatus = 'active' | 'funded' | 'completed';
+
+// Тип магазина-партнёра
+export type PartnerStoreType = 'supermarket' | 'pharmacy' | 'clothing' | 'education';
 ```
 
 | Интерфейс | Назначение | Ключевые поля |
 |-----------|-----------|---------------|
-| `Campaign` | Запрос помощи | `id, title, description, category, region, goal_amount, raised_amount, urgency, status, image_url, partner_id, created_at` |
+| `Campaign` | Запрос помощи / кампания | `id, title, description, category, region, goal_amount, raised_amount, urgency, status, image_url, partner_id, creator_id, created_at` |
 | `Transaction` | Транзакция | `id, type ('voucher_redemption' \| 'medicine_purchase' \| 'utility_payment'), voucher_number, store_name, city, amount, created_at` |
 | `PlatformStats` | Статистика платформы | `id, food_baskets_today, verified_aid_almaty, active_qr_vouchers, families_helped, partner_retailers` |
-| `Partner` | Магазин-партнёр | `id, name, type, city, logo_letter, logo_color` |
+| `Partner` | Магазин-партнёр | `id, name, type (PartnerStoreType), city, logo_letter, logo_color` |
 | `Profile` | Профиль пользователя | `id, role, display_name, phone, verified, created_at` |
 | `DonationIntent` | Намерение пожертвования | `id, donor_id, campaign_id, amount, payment_type ('full' \| 'partial' \| 'subscription'), status ('pending' \| 'confirmed' \| 'rejected'), created_at` |
+| `SusnVerificationRequest` | Заявка на верификацию SUSN | `id, user_id, document_path, status, reviewer_note, created_at, reviewed_at, ai_result` |
+| `PartnerApplication` | Заявка на партнёрство | `id, user_id, store_name, store_type (PartnerStoreType), city, address, status, reviewer_note, created_at, reviewed_at` |
 
 ---
 
@@ -327,9 +374,10 @@ type CampaignStatus = 'active' | 'funded' | 'completed';
 ### 8.1. Обзор
 
 - Схема: `public`
-- Всего таблиц: **6**
+- Всего таблиц: **7**
 - RLS (Row Level Security): **включён на всех таблицах**
 - Функций и триггеров в миграциях **не определено** — вся логика на стороне приложения/сервисной роли
+- Edge Functions: **не используются** фронтендом (админ-ревью работает через RPC)
 
 ### 8.2. Таблицы
 
@@ -348,7 +396,7 @@ type CampaignStatus = 'active' | 'funded' | 'completed';
 | Колонка | Тип | Описание |
 |---------|-----|----------|
 | `id` | uuid (PK) | Совпадает с `auth.users.id` |
-| `role` | text | `donor`, `susn`, `partner` |
+| `role` | text | `donor`, `susn`, `partner`, `admin` |
 | `display_name` | text | Отображаемое имя |
 | `phone` | text | Телефон |
 | `verified` | boolean | Верификация |
@@ -368,6 +416,7 @@ type CampaignStatus = 'active' | 'funded' | 'completed';
 | `status` | text | `active`, `funded`, `completed` |
 | `image_url` | text | URL изображения |
 | `partner_id` | uuid (FK → partners) | Связь с партнёром |
+| `creator_id` | uuid (FK → profiles) | Владелец кампании (SUSN) |
 | `created_at` | timestamptz | `now()` |
 
 #### `transactions` — транзакции
@@ -391,7 +440,7 @@ type CampaignStatus = 'active' | 'funded' | 'completed';
 | `families_helped` | int | Помогли семей |
 | `partner_retailers` | int | Партнёров-ритейлеров |
 
-#### `donation_intents` — намерения пожертвований (добавлена во 2-й миграции)
+#### `donation_intents` — намерения пожертвований
 | Колонка | Тип | Описание |
 |---------|-----|----------|
 | `id` | uuid (PK) | |
@@ -402,14 +451,42 @@ type CampaignStatus = 'active' | 'funded' | 'completed';
 | `status` | text | `pending`, `confirmed`, `rejected` |
 | `created_at` | timestamptz | `now()` |
 
+#### `susn_verification_requests` — заявки на верификацию SUSN
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | uuid (PK) | |
+| `user_id` | uuid | ID пользователя |
+| `document_path` | text | Путь к документу в Storage |
+| `status` | text | `pending`, `approved`, `rejected` |
+| `reviewer_note` | text | Заметка ревьюера |
+| `created_at` | timestamptz | `now()` |
+| `reviewed_at` | timestamptz | Дата рассмотрения |
+| `ai_result` | jsonb | Результат AI-проверки |
+
+#### `partner_applications` — заявки на партнёрство
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| `id` | uuid (PK) | |
+| `user_id` | uuid | ID пользователя |
+| `store_name` | text | Название магазина |
+| `store_type` | text | `supermarket`, `pharmacy`, `clothing`, `education` |
+| `city` | text | Город |
+| `address` | text | Адрес |
+| `status` | text | `pending`, `approved`, `rejected` |
+| `reviewer_note` | text | Заметка ревьюера |
+| `created_at` | timestamptz | `now()` |
+| `reviewed_at` | timestamptz | Дата рассмотрения |
+
 ### 8.3. RLS-политики
 
-RLS включён на всех таблицах. Ключевые политики (из второй миграции):
+RLS включён на всех таблицах. Ключевые политики:
 
 - **`profiles`**: пользователь может читать и обновлять только свою запись (`id = auth.uid()`)
-- **`campaigns`**: публичное чтение (select for all), запись — только авторизованные / сервисная роль
-- **`donation_intents`**: донор видит только свои намерения (`donor_id = auth.uid()`)
+- **`campaigns`**: публичное чтение, вставка — только verified SUSN (`creator_id = auth.uid()`)
+- **`donation_intents`**: донор видит/создаёт только свои намерения (`donor_id = auth.uid()`)
 - **`partners`**, **`transactions`**, **`platform_stats`**: публичное чтение
+- **`susn_verification_requests`**: административное управление через RPC (`admin_list_verification_requests`, `admin_review_application`)
+- **`partner_applications`**: административное управление через RPC
 
 > **Точные политики см. в файлах миграций.** При изменении схемы всегда проверяйте RLS.
 
@@ -417,8 +494,14 @@ RLS включён на всех таблицах. Ключевые полити
 
 | Файл | Назначение |
 |------|-----------|
-| `20260731034324_create_senim_schema.sql` | Начальная схема: 5 таблиц (`partners`, `profiles`, `campaigns`, `transactions`, `platform_stats`) + RLS |
-| `20260731063554_harden_rls_and_donation_intents.sql` | Усиление RLS-политик + добавление таблицы `donation_intents` |
+| `20260731034324_create_senim_schema.sql` | Начальная схема: 5 таблиц + RLS |
+| `20260731063554_harden_rls_and_donation_intents.sql` | Усиление RLS + таблица `donation_intents` |
+| `20260801075240_susn_verification_review.sql` | Таблица `susn_verification_requests` + RPC |
+| `20260801083054_partner_applications.sql` | Таблица `partner_applications` + RPC |
+| `20260801093050_susn_campaign_verified_rls.sql` | RLS для verified SUSN |
+| `20260801112600_campaign_i18n_columns.sql` | i18n колонки для кампаний |
+| `20260802120000_admin_review_demo.sql` | Демо-админ-ревью (seed) |
+| `20260802233000_campaign_creator_id.sql` | Добавление `creator_id` в `campaigns` + индекс + политика |
 
 ---
 
@@ -428,6 +511,7 @@ RLS включён на всех таблицах. Ключевые полити
 
 - Плагин `@vitejs/plugin-react`
 - Алиас пути: `@` → `./src` (используется во всех импортах: `@/lib/...`, `@/components/...`, `@/pages/...`)
+- Lazy-loading страниц через `React.lazy` + `Suspense`
 
 ### 9.2. TypeScript
 
@@ -481,6 +565,7 @@ RLS включён на всех таблицах. Ключевые полити
 - Проверять `loading` перед рендером зависимого от auth UI.
 - Проверять `profile?.role` для role-based логики.
 - При регистрации обязательно передавать `role` — это записывается в таблицу `profiles`.
+- Пароль никогда не отправляется на бэкенд в открытом виде; используется `supabase.auth.signInWithPassword` / `signUp` на клиенте.
 
 ### 10.4. Доступ к данным Supabase
 
@@ -488,6 +573,7 @@ RLS включён на всех таблицах. Ключевые полити
 - Никогда не использовать service_role key на фронтенде.
 - При добавлении новых таблиц — **обязательно включать RLS** и определять политики.
 - Использовать `.maybeSingle()` для запросов, где ожидается 0 или 1 запись.
+- Админ-операции — через RPC (`supabase.rpc(...)`), не через прямой UPDATE/DELETE.
 
 ### 10.5. Стилизация
 
@@ -505,6 +591,7 @@ RLS включён на всех таблицах. Ключевые полити
 
 - Все маршруты определены в `App.tsx`.
 - При добавлении новой страницы — добавить маршрут в `App.tsx` и ссылку в `Navbar.tsx`.
+- Сторонние страницы — lazy-load через `React.lazy` + `Suspense`.
 
 ---
 
@@ -537,6 +624,7 @@ RLS включён на всех таблицах. Ключевые полити
 - [ ] Компонент использует `useAuth()` для аутентификации (если нужен)
 - [ ] Props типизированы через interface/type
 - [ ] Следует существующим паттернам проекта (модалки, страницы, navbar)
+- [ ] Модалки: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, закрытие по Escape, `aria-label` на кнопке закрытия
 
 ---
 

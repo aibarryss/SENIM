@@ -17,6 +17,7 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
   const { user, profile, signOut } = useAuth();
   const { t, locale, setLocale } = useI18n();
   const canCreateRequest = profile?.role === 'susn' && profile?.verified === true;
+  const isAdmin = profile?.role === 'admin';
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-[14px] font-semibold leading-5 tracking-[0.01em] transition-all duration-200 pb-1 ${
@@ -62,6 +63,9 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
               <NavLink to="/create-request" className={navLinkClass}>{t('nav.createRequest')}</NavLink>
             )}
             <NavLink to="/partners" className={navLinkClass}>{t('nav.partnerStores')}</NavLink>
+            {isAdmin && (
+              <NavLink to="/admin" className={navLinkClass}>{t('nav.admin')}</NavLink>
+            )}
             <NavLink to="/" className={navLinkClass}>{t('nav.howItWorks')}</NavLink>
           </nav>
         </div>
@@ -103,6 +107,9 @@ export default function Navbar({ onLoginClick, onDonateClick }: NavbarProps) {
             <NavLink to="/create-request" className={navLinkClass} onClick={handleNavClick}>{t('nav.createRequest')}</NavLink>
           )}
           <NavLink to="/partners" className={navLinkClass} onClick={handleNavClick}>{t('nav.partnerStores')}</NavLink>
+          {isAdmin && (
+            <NavLink to="/admin" className={navLinkClass} onClick={handleNavClick}>{t('nav.admin')}</NavLink>
+          )}
           <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>{t('nav.howItWorks')}</NavLink>
           <div className="flex items-center gap-1 pt-2 border-t border-outline-variant w-fit bg-surface-container-low rounded-lg p-1">
             <Globe size={14} className="text-on-surface-variant ml-1.5" />

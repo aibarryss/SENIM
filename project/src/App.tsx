@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
@@ -7,12 +7,14 @@ import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import DonationModal from '@/components/DonationModal';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import LandingPage from '@/pages/LandingPage';
-import BrowseRequests from '@/pages/BrowseRequests';
-import ImpactDashboard from '@/pages/ImpactDashboard';
-import CreateRequest from '@/pages/CreateRequest';
-import PartnerStores from '@/pages/PartnerStores';
 import type { Campaign } from '@/lib/types';
+
+const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const BrowseRequests = lazy(() => import('@/pages/BrowseRequests'));
+const ImpactDashboard = lazy(() => import('@/pages/ImpactDashboard'));
+const CreateRequest = lazy(() => import('@/pages/CreateRequest'));
+const PartnerStores = lazy(() => import('@/pages/PartnerStores'));
+const AdminReview = lazy(() => import('@/pages/AdminReview'));
 
 export default function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function App() {
       status: 'active',
       image_url: null,
       partner_id: null,
+      creator_id: null,
       created_at: new Date().toISOString(),
     });
   };
@@ -43,29 +46,39 @@ export default function App() {
         <div className="min-h-screen flex flex-col">
           <Navbar onLoginClick={openAuth} onDonateClick={openDonate} />
           <div className="flex-1">
-            <Routes>
-              <Route path="/" element={<LandingPage onLoginClick={openAuth} />} />
-              <Route path="/browse" element={<BrowseRequests onDonateClick={setDonationCampaign} />} />
-              <Route path="/partners" element={<PartnerStores />} />
-              <Route
-                path="/create-request"
-                element={
-                  <ProtectedRoute requireRole="susn" requireVerified onLoginClick={openAuth}>
-                    <CreateRequest onLoginClick={openAuth} />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/impact" element={<ImpactDashboard />} />
-            </Routes>
+            <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh] text-on-surface-variant">{t('common.loading')}</div>}>
+              <Routes>
+                <Route path="/" element={<LandingPage onLoginClick={openAuth} />} />
+                <Route path="/browse" element={<BrowseRequests onDonateClick={setDonationCampaign} />} />
+                <Route path="/partners" element={<PartnerStores />} />
+                <Route
+                  path="/create-request"
+                  element={
+                    <ProtectedRoute requireRole="susn" requireVerified onLoginClick={openAuth}>
+                      <CreateRequest onLoginClick={openAuth} />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/impact" element={<ImpactDashboard />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requireRole="admin" onLoginClick={openAuth}>
+                      <AdminReview />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
           </div>
           <Footer />
+          <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
           <DonationModal
             campaign={donationCampaign}
             open={donationCampaign !== null}
             onClose={() => setDonationCampaign(null)}
             onRequireAuth={openAuth}
           />
-          <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
         </div>
       </BrowserRouter>
     </AuthProvider>

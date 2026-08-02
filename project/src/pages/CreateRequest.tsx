@@ -90,6 +90,7 @@ export default function CreateRequest({ onLoginClick }: CreateRequestProps) {
       status: 'active',
       image_url: null,
       partner_id: null,
+      creator_id: user.id,
     });
     setSubmitting(false);
 

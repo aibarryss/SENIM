@@ -1,4 +1,4 @@
-export type UserRole = 'donor' | 'susn' | 'partner';
+export type UserRole = 'donor' | 'susn' | 'partner' | 'admin';
 
 export type CampaignCategory = 'grocery' | 'medicine' | 'winter' | 'education';
 
@@ -22,6 +22,8 @@ export interface Campaign {
   status: CampaignStatus;
   image_url: string | null;
   partner_id: string | null;
+  /** The SUSN user who created this campaign. */
+  creator_id: string | null;
   created_at: string;
 }
 
@@ -44,10 +46,12 @@ export interface PlatformStats {
   partner_retailers: number;
 }
 
+export type PartnerStoreType = 'supermarket' | 'pharmacy' | 'clothing' | 'education';
+
 export interface Partner {
   id: string;
   name: string;
-  type: string;
+  type: PartnerStoreType;
   city: string;
   logo_letter: string;
   logo_color: string;
@@ -76,6 +80,12 @@ export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
 export type SusnVerificationStatus = ApplicationStatus;
 
+export interface AiVerificationResult {
+  confidence: number;
+  checks: string[];
+  summary: string;
+}
+
 export interface SusnVerificationRequest {
   id: string;
   user_id: string;
@@ -84,9 +94,8 @@ export interface SusnVerificationRequest {
   reviewer_note: string | null;
   created_at: string;
   reviewed_at: string | null;
+  ai_result: AiVerificationResult | null;
 }
-
-export type PartnerStoreType = 'supermarket' | 'pharmacy' | 'clothing' | 'education';
 
 export interface PartnerApplication {
   id: string;

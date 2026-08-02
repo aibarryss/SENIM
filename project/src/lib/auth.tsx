@@ -11,6 +11,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, role: UserRole, displayName?: string, phone?: string) => Promise<{ error: string | null; user: User | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -36,18 +37,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) {
-        const p = await loadProfile(data.session.user.id);
-        setProfile(p);
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
+    // Load the initial session. If this fails (network error, unreachable
+    // Supabase), we must still clear `loading` so the UI doesn't hang on a
+    // spinner forever — the stale/absent session will be handled by the
+    // onAuthStateChange listener below.
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        setSession(data.session);
+        if (data.session?.user) {
+          const p = await loadProfile(data.session.user.id);
+          setProfile(p);
+        } else {
+          setProfile(null);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      // getSession() above already handled the initial session, so skip the
+      // INITIAL_SESSION event to avoid a redundant profile fetch on mount.
+      if (event === 'INITIAL_SESSION') return;
       setSession(newSession);
       (async () => {
         if (newSession?.user) {
@@ -109,8 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signUp, signIn, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );
