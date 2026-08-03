@@ -1,8 +1,12 @@
-import { Globe, Mail, Share2, Download, Play } from 'lucide-react';
+import { Globe, Mail, Share2, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/lib/i18n';
 
-export default function Footer() {
+interface FooterProps {
+  onOpenIntro?: () => void;
+}
+
+export default function Footer({ onOpenIntro }: FooterProps) {
   const { t } = useI18n();
 
   return (
@@ -28,8 +32,12 @@ export default function Footer() {
         <div>
           <h4 className="text-[14px] font-semibold text-primary mb-6">{t('footer.resources')}</h4>
           <ul className="space-y-4">
-            <li><Link to="/impact" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.transparencyReports')}</Link></li>
-            <li><Link to="/impact" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.auditDocuments')}</Link></li>
+            <li>
+              <button onClick={onOpenIntro} className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors flex items-center gap-1.5">
+                <Info size={14} /> {t('footer.aboutPlatform')}
+              </button>
+            </li>
+            <li><Link to="/impact" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.howItWorks')}</Link></li>
             <li><Link to="/impact" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.impactMap')}</Link></li>
           </ul>
         </div>
@@ -40,17 +48,6 @@ export default function Footer() {
             <li><Link to="/privacy" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.privacy')}</Link></li>
             <li><a href="mailto:support@senim.kz" className="text-[14px] text-on-surface-variant hover:text-primary underline transition-colors">{t('footer.contactSupport')}</a></li>
           </ul>
-        </div>
-        <div>
-          <h4 className="text-[14px] font-semibold text-primary mb-6">{t('footer.downloadApp')}</h4>
-          <div className="space-y-3">
-            <button className="w-full py-3 px-4 bg-primary text-on-primary rounded-lg flex items-center justify-center gap-2 text-[14px] font-semibold active:scale-95 transition-transform">
-              <Download size={18} /> {t('footer.appStore')}
-            </button>
-            <button className="w-full py-3 px-4 border border-primary text-primary rounded-lg flex items-center justify-center gap-2 text-[14px] font-semibold active:scale-95 transition-transform">
-              <Play size={18} /> {t('footer.googlePlay')}
-            </button>
-          </div>
         </div>
       </div>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mt-stack-xl pt-stack-lg border-t border-outline-variant/30">

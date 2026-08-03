@@ -1,7 +1,7 @@
 {
   "index": {
-    "title": "SENIM | Direct Impact. Zero Scams.",
-    "description": "The first charity platform in Kazakhstan where your donation turns into specific products, not untraceable cash. Real food and medicine for those in need, verified by AI."
+    "title": "SENIM | Targeted Aid Platform",
+    "description": "A digital platform that helps organize targeted aid and connect people in need, donors, and future partners."
   },
   "region": {
     "almaty": "Almaty",
@@ -14,6 +14,34 @@
     "generalDonation": {
       "title": "General Donation",
       "description": "Support the most urgent requests on SENIM"
+    }
+  },
+  "intro": {
+    "heading": "Welcome to SENIM",
+    "subheading": "Learn how the aid platform works and how you can take part.",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "card1": {
+      "title": "What is SENIM?",
+      "body": "SENIM is a digital platform that helps organize targeted aid and connect people in need, donors, and future partners."
+    },
+    "card2": {
+      "title": "How does aid work?",
+      "body": "A request goes through review, after which it can be published for support. A donor chooses a campaign and makes a donation."
+    },
+    "card3": {
+      "title": "Request Review",
+      "body": "AI tools can help analyze submitted documents and flag potential inconsistencies. The final decision on a request is made by a responsible person."
+    },
+    "card4": {
+      "title": "Help Directly",
+      "body": "Choose a campaign that matters to you and support it. In the current prototype, the donation process is demonstrated through a test payment scenario."
+    },
+    "card5": {
+      "title": "QR Vouchers",
+      "body": "In the demo scenario, SENIM aid can be delivered via a QR voucher that a partner will be able to verify and redeem."
     }
   },
   "common": {
@@ -46,19 +74,16 @@
     }
   },
   "footer": {
-    "tagline": "Revolutionizing civic transparency through digital verification. Empowering every Kazakhstani to make a difference safely.",
+    "tagline": "A digital targeted aid platform: connecting people in need, donors, and future partners.",
     "resources": "Resources",
-    "transparencyReports": "Transparency Reports",
-    "auditDocuments": "Audit Documents",
+    "aboutPlatform": "About the Platform",
+    "howItWorks": "How it Works",
     "impactMap": "Impact Map",
     "legal": "Legal",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "contactSupport": "Contact Support",
-    "downloadApp": "Download App",
-    "appStore": "App Store",
-    "googlePlay": "Google Play",
-    "copyright": "© 2026 SENIM Kazakhstan. All rights reserved. Registered Charity No. 0012345"
+    "copyright": "© 2026 SENIM Kazakhstan. All rights reserved."
   },
   "auth": {
     "joinSenim": "Join SENIM",
@@ -127,7 +152,7 @@
     "statusVerified": "Verified",
     "statusRejected": "Rejected",
     "statusApproved": "Approved",
-    "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. 100% of your donation goes to the recipient's request."
+    "donorBankNote": "You can register any Kaspi, Halyk, Forte, Jusan, or Freedom bank card after sign-up. Your donation is directed to the recipient's request."
   },
   "donate": {
     "successTitle": "Donation Successful",
@@ -189,57 +214,71 @@
     "close": "Close"
   },
   "landing": {
-    "badge": "100% Direct Verification via AI",
+    "badge": "Targeted Aid Platform",
     "hero1": "Direct Impact.",
-    "hero2": "Zero Scams.",
-    "heroSub": "The first charity platform in Kazakhstan where your donation turns into specific products, not untraceable cash. Real food and medicine for those in need, verified by AI.",
+    "hero2": "Transparent Aid.",
+    "heroSub": "A digital platform that helps organize targeted aid and connect people in need, donors, and future partners.",
     "startDonating": "Start Donating",
-    "viewTransparency": "View Transparency Report",
+    "viewTransparency": "How it Works",
     "foodBasketImgAlt": "Food basket",
     "medicineImgAlt": "Medicine",
-    "foodBasketLabel": "Food Basket #{n}",
+    "foodBasketLabel": "Food Basket",
     "urgent": "URGENT",
-    "secureVouchers": "Secure Vouchers",
-    "directRedemption": "Direct retail redemption",
-    "liveImpact": "Live Impact:",
+    "secureVouchers": "QR Vouchers",
+    "directRedemption": "Aid through digital vouchers",
+    "liveImpact": "Platform Status:",
     "ticker": {
-      "baskets": "Food Baskets Distributed Today",
-      "verifiedAid": "Verified Aid in Almaty",
-      "vouchers": "Active QR Vouchers",
-      "delivery": "Delivery Rate"
+      "baskets": "Platform is developing",
+      "verifiedAid": "In formation",
+      "vouchers": "Coming soon"
     },
-    "loopTitle": "The Transparency Loop",
-    "loopSub": "From your wallet to their hands, every Tenge is tracked by our smart ecosystem.",
+    "loopTitle": "How it Works",
+    "loopSub": "From request to aid — every step is transparent and clear.",
     "step1": {
-      "title": "Donor Funds",
-      "desc": "Choose a specific campaign or person. Your funds are locked into the SENIM smart contract immediately."
+      "title": "Request",
+      "desc": "A person in need creates a request describing their need."
     },
     "step2": {
-      "title": "AI Verification",
-      "desc": "Recipients are verified via government databases and face-ID to ensure aid goes to real people in need."
+      "title": "Review",
+      "desc": "AI tools help analyze documents and flag potential inconsistencies. The final decision is made by a responsible person."
     },
     "step3": {
-      "title": "QR Voucher",
-      "desc": "The recipient receives a digital voucher on their phone, restricted to specific product categories only."
+      "title": "Publication",
+      "desc": "A reviewed request is published, and donors can support it."
     },
     "step4": {
-      "title": "Retail Redemption",
-      "desc": "Vouchers are scanned at Magnum, Small, or Europharma. Retailer gets paid instantly by SENIM."
+      "title": "Aid",
+      "desc": "The partner network is in formation. In the demo scenario, aid can be delivered via a QR voucher."
     },
-    "partnersTitle": "Trusted Redemption Partners",
-    "ctaTitle": "Join the most transparent charity network in Central Asia.",
-    "ctaSub": "Every voucher is recorded on the blockchain, and every retail receipt is available for your audit. No management fees, just pure impact.",
+    "partnersTitle": "Partner Network",
+    "partnersStatus": "In Formation 🕝",
+    "partnersBody": "We are working on building a network of partners who will be able to participate in the SENIM aid system.",
+    "ctaTitle": "Join the targeted aid platform.",
+    "ctaSub": "SENIM is at an early stage. We openly show the platform's current capabilities and separate demo features from future real services.",
     "exploreMap": "Explore Map",
-    "scanLive": "Scan to See Live Impact"
+    "scanLive": "Demo QR Voucher",
+    "projectStatus": {
+      "title": "Project Transparency",
+      "body": "SENIM is at the development stage and is building its partner network. We openly show the platform's current capabilities and separate demo features from future real services.",
+      "status": "Project Status",
+      "statusValue": "MVP / Demo",
+      "payments": "Payments",
+      "paymentsValue": "Demo Mode",
+      "partners": "Partner Network",
+      "partnersValue": "In Formation",
+      "verification": "Verification",
+      "verificationValue": "Available in prototype"
+    }
   },
   "partners": {
-    "title": "Partner Stores",
-    "subtitle": "Trusted stores and pharmacies where SENIM vouchers can be redeemed.",
-    "empty": "No partner stores have been added yet."
+    "title": "Partner Network",
+    "subtitle": "We are working on building a network of partners who will be able to participate in the SENIM aid system.",
+    "status": "In Formation 🕝",
+    "empty": "Partner stores are being connected."
   },
   "browse": {
     "title": "Urgent Assistance Requests",
-    "subtitle": "Direct aid for families and individuals across Kazakhstan. Every tenge goes directly to the partner store to fulfill these specific needs.",
+    "subtitle": "Direct aid for families and individuals across Kazakhstan. Every tenge goes directly to fulfilling specific needs.",
     "categories": "Categories",
     "regions": "Regions",
     "cat": {
@@ -252,8 +291,8 @@
     "region": {
       "all": "All of Kazakhstan"
     },
-    "transparentTitle": "100% Transparent",
-    "transparentBody": "Your contribution is paid directly to the merchant. SENIM takes 0% commission on individual requests.",
+    "transparentTitle": "Transparent Payouts",
+    "transparentBody": "Your contribution is directed to fulfilling a specific request. SENIM takes 0% commission on individual requests.",
     "of": "of {goal}",
     "empty": "No requests match your filters.",
     "clearFilters": "Clear Filters",
@@ -288,7 +327,7 @@
   "voucher": {
     "title": "Demo QR Voucher",
     "generate": "Generate Voucher",
-    "generateHint": "Creates a demo voucher with a QR code you can redeem at any partner store.",
+    "generateHint": "Creates a demo voucher with a QR code you can redeem at a future partner store.",
     "codeLabel": "Voucher Code",
     "amount": "Amount",
     "campaign": "Campaign",
@@ -315,7 +354,7 @@
   },
   "admin": {
     "title": "Admin Review",
-    "subtitle": "AI checks documents, but only an admin makes the final decision.",
+    "subtitle": "AI helps analyze documents, but only an admin makes the final decision.",
     "aiResult": "AI Verification Result",
     "confidence": "AI Confidence",
     "document": "Document",
@@ -376,7 +415,7 @@
       },
       "voucher_ready": {
         "title": "Your voucher is ready",
-        "body": "Your QR voucher is ready to use at a partner store."
+        "body": "Your QR voucher is ready to use at a future partner store."
       },
       "help_received": {
         "title": "Help received",
@@ -405,7 +444,7 @@
       "lastUpdated": "Last updated",
       "acceptance": {
         "title": "Acceptance of Terms",
-        "body": "By using the SENIM platform, you agree to these terms. SENIM is a charity platform connecting donors, assistance seekers, and business partners in Kazakhstan."
+        "body": "By using the SENIM platform, you agree to these terms. SENIM is a platform connecting donors, assistance seekers, and future business partners in Kazakhstan."
       },
       "roles": {
         "title": "User Roles",
@@ -459,44 +498,43 @@
     }
   },
   "impact": {
-    "title": "Live Impact Dashboard",
-    "subtitle": "Real-time verification of every Tenge donated. SENIM ensures your contribution reaches those in need with 100% blockchain-backed transparency.",
-    "fullAudit": "Full Audit 2026",
-    "shareReport": "Share Report",
-    "hotspots": "Impact Hotspots",
-    "liveUpdates": "Live Updates (Last 5 mins)",
+    "title": "Impact Map",
+    "subtitle": "Aid directions supported by the SENIM platform.",
+    "fullAudit": "Project Status",
+    "shareReport": "Share",
+    "hotspots": "Aid Directions",
+    "liveUpdates": "Regional Map",
     "mapTitle": "KAZAKHSTAN",
-    "mapSub": "Live distribution network across 5 regions",
-    "redeemedVouchers": "Redeemed Vouchers",
-    "partnerHubs": "Partner Hubs",
-    "allocationsTitle": "Fund Allocation",
+    "mapSub": "Platform is developing",
+    "redeemedVouchers": "QR Vouchers",
+    "partnerHubs": "Partner Network",
+    "allocationsTitle": "Aid Directions",
     "allocations": {
-      "groceries": "Groceries & Food Security",
-      "medicine": "Essential Medicine",
-      "utilities": "Utility Support",
-      "ops": "Operational Transparency"
+      "groceries": "Food Aid",
+      "medicine": "Medical Aid",
+      "utilities": "Heating Support",
+      "ops": "Educational Support"
     },
-    "mealsNote": "Every ₸1,000 donated provides approx. 2 balanced meals for a family of four.",
-    "feedTitle": "Recent Impact Transactions",
-    "blockchainVerified": "Blockchain Verified",
+    "mealsNote": "Results data will appear after the platform launches.",
+    "feedTitle": "Recent Transactions",
+    "blockchainVerified": "Demo Mode",
     "tx": {
       "voucher": "Voucher {n} Redeemed",
       "medicine": "Medicine Purchase {n}",
       "utility": "Utility Bill Payment {n}"
     },
-    "auditTitle": "Audit & Legal Core",
-    "auditBody": "Access our full ledger, independent audit reports, and legal compliance documents. We operate on a 'Zero Shadow' policy.",
+    "auditTitle": "Project Status",
+    "auditBody": "SENIM is at the development stage and is building its partner network. We openly show the platform's current capabilities and separate demo features from future real services.",
     "audit": {
-      "q3": "Q1 2026 Audit Report",
-      "ledger": "Blockchain Ledger Access",
-      "tax": "Tax Exemption Status"
+      "ledger": "Project Status: MVP / Demo",
+      "tax": "Payments: Demo Mode"
     },
-    "charityNote": "SENIM is registered under the Charity Act of Kazakhstan. Every donation is tax-deductible for residents.",
+    "charityNote": "The partner network is in formation. Verification is available in the prototype.",
     "stats": {
       "families": "Families Helped",
-      "retailers": "Partner Retailers",
-      "transparency": "Transparency Score"
+      "retailers": "Partner Retailers"
     },
+    "statsPlaceholder": "In Formation",
     "time": {
       "justNow": "just now",
       "minute": {

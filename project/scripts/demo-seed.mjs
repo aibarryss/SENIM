@@ -2,9 +2,9 @@
 /**
  * SENIM — Demo Seed Script
  *
- * Creates (idempotently) the four demo accounts, their profiles, the demo
- * partner store, three demo campaigns/offers, and a demo SUSN verification
- * request so the Admin Review screen is not empty.
+ * Creates (idempotently) the four demo accounts, their profiles, three demo
+ * campaigns/offers, and a demo SUSN verification request so the Admin Review
+ * screen is not empty.
  *
  * REQUIREMENTS
  * - Node 18+ (uses global fetch).
@@ -244,19 +244,7 @@ async function main() {
     users[account.role] = await ensureDemoUser(account);
   }
 
-  // 2. Demo partner store
-  log('partner', 'Upserting Demo Partner Store...');
-  const { error: partnerError } = await admin.rpc('upsert_demo_partner', {
-    p_name: 'Demo Partner Store',
-    p_type: 'supermarket',
-    p_city: 'Almaty',
-    p_logo_letter: 'D',
-    p_logo_color: '#0F766E',
-  });
-  if (partnerError) throw partnerError;
-  log('partner', 'Demo Partner Store ready.');
-
-  // 3. Demo campaigns/offers
+  // 2. Demo campaigns/offers
   for (const c of DEMO_CAMPAIGNS) {
     log('campaign', `Upserting "${c.title}"...`);
     const { error: campaignError } = await admin.rpc('upsert_demo_campaign', {
@@ -275,7 +263,7 @@ async function main() {
   }
   log('campaign', 'Demo campaigns ready.');
 
-  // 4. Demo SUSN verification request (pending, with demo AI result).
+  // 3. Demo SUSN verification request (pending, with demo AI result).
   //    AI result is a RECOMMENDATION only — the admin makes the final decision.
   log('verification', 'Upserting demo SUSN verification request...');
   const { error: verificationError } = await admin.rpc('upsert_demo_verification_request', {

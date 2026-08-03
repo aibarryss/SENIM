@@ -5,7 +5,6 @@
  * Removes ONLY demo data:
  *   - the four demo auth users (by fixed emails)
  *   - their profiles (is_demo = true)
- *   - the demo partner store (by fixed name)
  *   - the three demo campaigns (by fixed titles)
  *   - demo verification requests / donation intents / partner applications
  *     belonging to demo profiles
@@ -92,7 +91,7 @@ function log(step, message) {
 async function main() {
   console.log('=== SENIM Demo Reset ===\n');
 
-  // 1. Remove demo DB rows (campaigns, partner, verification requests,
+  // 1. Remove demo DB rows (campaigns, verification requests,
   //    donation intents, partner applications, profiles) via the
   //    service-role RPC. This is scoped to demo-owned rows only.
   log('db', 'Removing demo-owned DB rows...');

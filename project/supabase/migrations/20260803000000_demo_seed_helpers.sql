@@ -69,55 +69,7 @@ REVOKE ALL ON FUNCTION upsert_demo_profile(uuid, text, text, text, boolean) FROM
 REVOKE ALL ON FUNCTION upsert_demo_profile(uuid, text, text, text, boolean) FROM anon, authenticated;
 
 -- =========================================================
--- 3. upsert_demo_partner() — create/update a demo partner store
--- =========================================================
--- Service-role only. Used by demo:seed to create the partner record linked to
--- the demo partner account. Idempotent by `name = 'Demo Partner Store'`.
--- NOTE: `partners.name` has no UNIQUE constraint, so we check existence
--- manually instead of using ON CONFLICT.
-CREATE OR REPLACE FUNCTION upsert_demo_partner(
-  p_name text,
-  p_type text,
-  p_city text,
-  p_logo_letter text,
-  p_logo_color text
-)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_partner_id uuid;
-BEGIN
-  IF p_type NOT IN ('supermarket', 'pharmacy', 'clothing', 'education') THEN
-    RAISE EXCEPTION 'Invalid partner type %', p_type;
-  END IF;
-
-  SELECT id INTO v_partner_id FROM public.partners WHERE name = p_name;
-
-  IF v_partner_id IS NULL THEN
-    INSERT INTO public.partners (name, type, city, logo_letter, logo_color)
-    VALUES (p_name, p_type, p_city, p_logo_letter, p_logo_color)
-    RETURNING id INTO v_partner_id;
-  ELSE
-    UPDATE public.partners
-    SET type = p_type,
-        city = p_city,
-        logo_letter = p_logo_letter,
-        logo_color = p_logo_color
-    WHERE id = v_partner_id;
-  END IF;
-
-  RETURN jsonb_build_object('ok', true, 'partner_id', v_partner_id);
-END;
-$$;
-
-REVOKE ALL ON FUNCTION upsert_demo_partner(text, text, text, text, text) FROM PUBLIC;
-REVOKE ALL ON FUNCTION upsert_demo_partner(text, text, text, text, text) FROM anon, authenticated;
-
--- =========================================================
--- 4. upsert_demo_campaign() — create/update a demo campaign/offer
+-- 3. upsert_demo_campaign() — create/update a demo campaign/offer
 -- =========================================================
 -- Service-role only. Idempotent by title. Sets fixed demo fields (goal,
 -- raised, status, creator) so demo:reset can delete by the same titles.
@@ -184,7 +136,7 @@ REVOKE ALL ON FUNCTION upsert_demo_campaign(text, text, text, text, numeric, num
 REVOKE ALL ON FUNCTION upsert_demo_campaign(text, text, text, text, numeric, numeric, text, uuid, jsonb, jsonb) FROM anon, authenticated;
 
 -- =========================================================
--- 5. upsert_demo_verification_request() — demo SUSN verification request
+-- 4. upsert_demo_verification_request() — demo SUSN verification request
 -- =========================================================
 -- Service-role only. Creates a PENDING verification request for the demo SUSN
 -- with a demo AI result (recommendation only — the admin still makes the final
@@ -224,11 +176,10 @@ REVOKE ALL ON FUNCTION upsert_demo_verification_request(uuid, text, jsonb) FROM 
 REVOKE ALL ON FUNCTION upsert_demo_verification_request(uuid, text, jsonb) FROM anon, authenticated;
 
 -- =========================================================
--- 6. delete_demo_data() — idempotent demo cleanup
+-- 5. delete_demo_data() — idempotent demo cleanup
 -- =========================================================
 -- Service-role only. Used by demo:reset. Deletes ONLY demo-owned rows:
 --   - campaigns whose titles are in the fixed demo list
---   - the demo partner store (by fixed name)
 --   - demo profiles (is_demo = true) and their auth.users rows
 -- It NEVER touches real users/content.
 -- NOTE: auth.users deletion is performed by the script via Auth Admin API;
@@ -252,9 +203,6 @@ BEGIN
     'Winter Coal Support'
   );
   GET DIAGNOSTICS v_deleted_campaigns = ROW_COUNT;
-
-  -- Demo partner store.
-  DELETE FROM public.partners WHERE name = 'Demo Partner Store';
 
   -- Demo verification requests belonging to demo profiles.
   DELETE FROM public.susn_verification_requests
