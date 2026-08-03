@@ -498,24 +498,35 @@
     }
   },
   "impact": {
-    "title": "Impact Map",
-    "subtitle": "Aid directions supported by the SENIM platform.",
-    "fullAudit": "Project Status",
+    "title": "Path of Help",
+    "subtitle": "From identifying a need to receiving targeted aid — SENIM unites the key stages in a single digital system.",
     "shareReport": "Share",
-    "hotspots": "Aid Directions",
-    "liveUpdates": "Regional Map",
-    "mapTitle": "KAZAKHSTAN",
-    "mapSub": "Platform is developing",
-    "redeemedVouchers": "QR Vouchers",
-    "partnerHubs": "Partner Network",
-    "allocationsTitle": "Aid Directions",
-    "allocations": {
-      "groceries": "Food Aid",
-      "medicine": "Medical Aid",
-      "utilities": "Heating Support",
-      "ops": "Educational Support"
+    "flowTitle": "How aid works",
+    "flowSubtitle": "Five stages — from request to receiving help.",
+    "steps": {
+      "1": {
+        "title": "Identifying the Need",
+        "desc": "SUSN submits a request for the needed help through the SENIM platform."
+      },
+      "2": {
+        "title": "Verification",
+        "desc": "The request goes through a verification and administrative review process."
+      },
+      "3": {
+        "title": "Targeted Aid",
+        "desc": "A verified need turns into a specific offer that a donor can support."
+      },
+      "4": {
+        "title": "Donation",
+        "desc": "The donor chooses the aid goal and directs a donation to fund it."
+      },
+      "5": {
+        "title": "Receiving Help",
+        "desc": "After full funding, aid can be delivered through the voucher system and partner infrastructure."
+      }
     },
-    "mealsNote": "Results data will appear after the platform launches.",
+    "whyTitle": "Why It Matters",
+    "whyBody": "SENIM strives to make targeted social aid more understandable, structured, and trackable — from the moment a need arises to the delivery of help.",
     "feedTitle": "Recent Transactions",
     "blockchainVerified": "Demo Mode",
     "tx": {
@@ -525,16 +536,12 @@
     },
     "auditTitle": "Project Status",
     "auditBody": "SENIM is at the development stage and is building its partner network. We openly show the platform's current capabilities and separate demo features from future real services.",
-    "audit": {
-      "ledger": "Project Status: MVP / Demo",
-      "tax": "Payments: Demo Mode"
-    },
     "charityNote": "The partner network is in formation. Verification is available in the prototype.",
-    "stats": {
-      "families": "Families Helped",
-      "retailers": "Partner Retailers"
+    "metrics": {
+      "activeRequests": "Active Requests",
+      "raised": "Funds Raised",
+      "donations": "Donations"
     },
-    "statsPlaceholder": "In Formation",
     "time": {
       "justNow": "just now",
       "minute": {

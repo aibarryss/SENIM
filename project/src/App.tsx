@@ -34,11 +34,9 @@ export default function App() {
   const openIntro = () => setIntroOpen(true);
   const closeIntro = () => setIntroOpen(false);
 
-  // Auto-open onboarding on first visit.
+  // Auto-open onboarding on every page load.
   useEffect(() => {
-    if (!localStorage.getItem("senim_onboarding_completed")) {
-      setIntroOpen(true);
-    }
+    setIntroOpen(true);
   }, []);
   const openDonate = () => {
     setDonationCampaign({

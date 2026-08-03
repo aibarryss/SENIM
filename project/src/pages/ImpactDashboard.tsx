@@ -1,32 +1,83 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Share,
   ShoppingCart,
   Stethoscope,
   ReceiptText,
-  Users,
-  Store,
   BadgeCheck,
   Info,
+  FileText,
+  ShieldCheck,
+  Package,
+  HeartHandshake,
+  QrCode,
+  HandCoins,
+  ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type TKey } from "@/lib/i18n";
 import { cityLabel } from "@/lib/cities";
 import type { Transaction } from "@/lib/types";
 
-// Approximate city positions on the Kazakhstan SVG map (percentages).
-const cityNodes = [
-  { key: "Almaty", x: 78, y: 78, size: "lg" },
-  { key: "Astana", x: 52, y: 42, size: "md" },
-  { key: "Shymkent", x: 52, y: 82, size: "md" },
-  { key: "Karaganda", x: 56, y: 50, size: "sm" },
-  { key: "Aktobe", x: 22, y: 48, size: "sm" },
-] as const;
+interface Step {
+  num: string;
+  icon: typeof FileText;
+  titleKey: TKey;
+  descKey: TKey;
+  highlight?: boolean;
+}
+
+const steps: Step[] = [
+  {
+    num: "01",
+    icon: FileText,
+    titleKey: "impact.steps.1.title",
+    descKey: "impact.steps.1.desc",
+  },
+  {
+    num: "02",
+    icon: ShieldCheck,
+    titleKey: "impact.steps.2.title",
+    descKey: "impact.steps.2.desc",
+  },
+  {
+    num: "03",
+    icon: Package,
+    titleKey: "impact.steps.3.title",
+    descKey: "impact.steps.3.desc",
+    highlight: true,
+  },
+  {
+    num: "04",
+    icon: HeartHandshake,
+    titleKey: "impact.steps.4.title",
+    descKey: "impact.steps.4.desc",
+  },
+  {
+    num: "05",
+    icon: QrCode,
+    titleKey: "impact.steps.5.title",
+    descKey: "impact.steps.5.desc",
+  },
+];
+
+interface Metrics {
+  activeRequests: number | null;
+  raised: number | null;
+  donations: number | null;
+}
 
 export default function ImpactDashboard() {
   const { t, tp } = useI18n();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState<Metrics>({
+    activeRequests: null,
+    raised: null,
+    donations: null,
+  });
+  const [visible, setVisible] = useState(false);
+  const flowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase
@@ -38,6 +89,54 @@ export default function ImpactDashboard() {
         setTransactions((data as Transaction[]) || []);
         setLoading(false);
       });
+  }, []);
+
+  useEffect(() => {
+    // Real metrics from existing tables (no fake data).
+    const fetchMetrics = async () => {
+      const [activeRes, raisedRes, donationsRes] = await Promise.all([
+        supabase
+          .from("campaigns")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "active"),
+        supabase
+          .from("campaigns")
+          .select("raised_amount")
+          .in("status", ["active", "funded"]),
+        supabase
+          .from("donation_intents")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "confirmed"),
+      ]);
+
+      const raised = (raisedRes.data as { raised_amount: number }[] | null)?.reduce(
+        (sum, c) => sum + (c.raised_amount || 0),
+        0,
+      );
+
+      setMetrics({
+        activeRequests: activeRes.count ?? null,
+        raised: raised ?? null,
+        donations: donationsRes.count ?? null,
+      });
+    };
+    fetchMetrics();
+  }, []);
+
+  useEffect(() => {
+    const el = flowRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const formatKzt = (n: number) => `₸${n.toLocaleString()}`;
@@ -70,23 +169,22 @@ export default function ImpactDashboard() {
     },
   };
 
-  const allocations = [
-    { label: t("impact.allocations.groceries"), color: "bg-secondary" },
-    { label: t("impact.allocations.medicine"), color: "bg-secondary" },
-    { label: t("impact.allocations.utilities"), color: "bg-secondary" },
-    { label: t("impact.allocations.ops"), color: "bg-on-surface-variant opacity-20" },
-  ];
-
-  const statCards = [
+  const metricCards = [
     {
-      icon: Users,
-      value: t("impact.statsPlaceholder"),
-      label: t("impact.stats.families"),
+      icon: ClipboardList,
+      value: metrics.activeRequests,
+      label: t("impact.metrics.activeRequests"),
     },
     {
-      icon: Store,
-      value: t("impact.statsPlaceholder"),
-      label: t("impact.stats.retailers"),
+      icon: HandCoins,
+      value: metrics.raised,
+      label: t("impact.metrics.raised"),
+      format: (n: number) => formatKzt(n),
+    },
+    {
+      icon: HeartHandshake,
+      value: metrics.donations,
+      label: t("impact.metrics.donations"),
     },
   ];
 
@@ -111,115 +209,184 @@ export default function ImpactDashboard() {
         </div>
       </section>
 
-      {/* Bento Grid */}
-      <div className="bento-grid">
-        {/* Map Section */}
-        <div className="col-span-12 lg:col-span-8 bg-white rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] overflow-hidden h-[500px] relative">
-          <div className="absolute top-6 left-6 z-10">
-            <div className="glass-card p-4 rounded-lg shadow-sm border border-outline-variant">
-              <h3 className="text-[20px] font-semibold mb-1">
-                {t("impact.hotspots")}
-              </h3>
-              <div className="flex items-center gap-2 text-[12px] font-medium text-on-surface-variant">
-                {t("impact.liveUpdates")}
-              </div>
-            </div>
-          </div>
+      {/* Path of Help — Flow */}
+      <section
+        ref={flowRef}
+        className="mb-stack-xl bg-surface-container-lowest rounded-3xl border border-outline-variant/30 p-stack-lg md:p-stack-xl shadow-sm"
+      >
+        <div className="text-center mb-stack-xl">
+          <h2 className="text-[28px] md:text-[32px] leading-10 font-bold text-primary mb-3">
+            {t("impact.flowTitle")}
+          </h2>
+          <p className="text-on-surface-variant text-[16px] leading-7 max-w-2xl mx-auto">
+            {t("impact.flowSubtitle")}
+          </p>
+        </div>
 
-          {/* Stylized Kazakhstan map with city nodes */}
-          <div className="w-full h-full bg-[#f1f5f9] relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-surface-container-low to-surface-container-high" />
-
-            {/* Simplified Kazakhstan silhouette (SVG) */}
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              className="absolute inset-0 w-full h-full"
-              style={{ opacity: 0.12 }}
-            >
-              <path
-                d="M14,38 Q18,30 28,28 L40,26 Q48,24 54,28 L62,30 Q72,28 80,34 L88,40 Q92,48 88,56 L84,64 Q78,72 70,74 L58,78 Q48,82 40,80 L30,76 Q22,72 18,64 L14,54 Q12,46 14,38 Z"
-                fill="#006c49"
-                stroke="#006c49"
-                strokeWidth="0.4"
-              />
-            </svg>
-
-            {/* City nodes */}
-            {cityNodes.map((node) => {
-              const sizeClass =
-                node.size === "lg"
-                  ? "w-5 h-5"
-                  : node.size === "md"
-                    ? "w-4 h-4"
-                    : "w-3 h-3";
+        {/* Desktop: horizontal flow */}
+        <div className="hidden lg:block">
+          <div className="flex items-stretch gap-0">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              const isLast = i === steps.length - 1;
               return (
-                <div
-                  key={node.key}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                  style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                >
+                <div key={step.num} className="flex-1 flex items-stretch">
                   <div
-                    className={`relative ${sizeClass} rounded-full bg-secondary border-2 border-white shadow-lg animate-pulse-node`}
+                    className={`flex-1 flex flex-col items-center text-center px-4 transition-all duration-700 ${
+                      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                    }`}
+                    style={{ transitionDelay: `${i * 120}ms` }}
                   >
                     <div
-                      className={`absolute inset-0 ${sizeClass} rounded-full bg-secondary/40 animate-ping`}
-                    />
+                      className={`relative w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-500 ${
+                        step.highlight
+                          ? "bg-secondary text-on-secondary shadow-lg shadow-secondary/30 scale-105"
+                          : "bg-primary-fixed text-primary"
+                      }`}
+                    >
+                      <Icon size={28} />
+                      <span
+                        className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                          step.highlight
+                            ? "bg-primary text-on-primary"
+                            : "bg-surface-container-high text-on-surface-variant"
+                        }`}
+                      >
+                        {step.num}
+                      </span>
+                    </div>
+                    <h3
+                      className={`text-[16px] font-semibold mb-2 ${
+                        step.highlight ? "text-secondary" : "text-primary"
+                      }`}
+                    >
+                      {t(step.titleKey)}
+                    </h3>
+                    <p className="text-[13px] leading-5 text-on-surface-variant">
+                      {t(step.descKey)}
+                    </p>
                   </div>
-                  <div className="mt-1.5 glass-card px-2 py-0.5 rounded-md text-[11px] font-semibold text-on-surface whitespace-nowrap shadow-sm">
-                    {cityLabel(node.key, t)}
-                  </div>
+                  {!isLast && (
+                    <div className="flex items-center justify-center w-8 shrink-0">
+                      <div
+                        className={`h-0.5 w-full rounded-full transition-all duration-700 ${
+                          visible ? "opacity-100" : "opacity-0"
+                        } ${step.highlight ? "bg-secondary" : "bg-outline-variant"}`}
+                        style={{ transitionDelay: `${i * 120 + 60}ms` }}
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
-
-            {/* Title overlay (bottom-left) */}
-            <div className="absolute bottom-6 left-6">
-              <div className="text-2xl font-bold text-outline-variant/30">
-                {t("impact.mapTitle")}
-              </div>
-              <p className="text-[12px] text-on-surface-variant">
-                {t("impact.mapSub")}
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-            <div className="glass-card px-4 py-2 rounded-full text-[12px] font-medium flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-secondary" />{" "}
-              {t("impact.redeemedVouchers")}
-            </div>
-            <div className="glass-card px-4 py-2 rounded-full text-[12px] font-medium flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-tertiary-fixed-dim" />{" "}
-              {t("impact.partnerHubs")}
-            </div>
           </div>
         </div>
 
-        {/* Fund Allocation */}
-        <div className="col-span-12 lg:col-span-4 bg-white rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-stack-lg flex flex-col">
-          <h3 className="text-[20px] font-semibold mb-stack-lg">
-            {t("impact.allocationsTitle")}
-          </h3>
-          <div className="flex-grow flex flex-col justify-center gap-stack-lg">
-            {allocations.map((a, i) => (
-              <div key={i}>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className={`w-3 h-3 rounded-full ${a.color}`} />
-                  <span className="text-[14px] font-semibold">{a.label}</span>
-                </div>
-              </div>
-            ))}
+        {/* Mobile/Tablet: vertical flow */}
+        <div className="lg:hidden">
+          <div className="relative">
+            <div className="absolute left-8 top-4 bottom-4 w-0.5 bg-outline-variant" />
+            <div className="space-y-6">
+              {steps.map((step, i) => {
+                const Icon = step.icon;
+                return (
+                  <div
+                    key={step.num}
+                    className={`relative flex gap-5 transition-all duration-700 ${
+                      visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-6"
+                    }`}
+                    style={{ transitionDelay: `${i * 120}ms` }}
+                  >
+                    <div
+                      className={`relative z-10 w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center ${
+                        step.highlight
+                          ? "bg-secondary text-on-secondary shadow-lg shadow-secondary/30"
+                          : "bg-primary-fixed text-primary"
+                      }`}
+                    >
+                      <Icon size={26} />
+                      <span
+                        className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                          step.highlight
+                            ? "bg-primary text-on-primary"
+                            : "bg-surface-container-high text-on-surface-variant"
+                        }`}
+                      >
+                        {step.num}
+                      </span>
+                    </div>
+                    <div className="pt-1">
+                      <h3
+                        className={`text-[18px] font-semibold mb-1 ${
+                          step.highlight ? "text-secondary" : "text-primary"
+                        }`}
+                      >
+                        {t(step.titleKey)}
+                      </h3>
+                      <p className="text-[14px] leading-6 text-on-surface-variant">
+                        {t(step.descKey)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-stack-xl pt-stack-lg border-t border-outline-variant">
-            <p className="text-[14px] leading-5 text-on-surface-variant italic">
-              {t("impact.mealsNote")}
+        </div>
+      </section>
+
+      {/* Why It Matters */}
+      <section className="mb-stack-xl">
+        <div className="bg-primary-container rounded-3xl p-stack-lg md:p-stack-xl text-white relative overflow-hidden">
+          <div className="relative z-10 max-w-3xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center">
+                <Info size={22} className="text-secondary-fixed" />
+              </div>
+              <h2 className="text-[24px] md:text-[28px] leading-9 font-bold">
+                {t("impact.whyTitle")}
+              </h2>
+            </div>
+            <p className="text-[16px] leading-7 text-primary-fixed-dim">
+              {t("impact.whyBody")}
             </p>
           </div>
         </div>
+      </section>
 
+      {/* Real Metrics */}
+      <section className="mb-stack-xl grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        {metricCards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={i}
+              className="bg-surface-container-low p-stack-lg rounded-xl flex items-center gap-stack-md"
+            >
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-secondary shrink-0">
+                <Icon size={24} />
+              </div>
+              <div>
+                {card.value === null ? (
+                  <div className="h-6 w-16 bg-surface-container-high rounded animate-pulse mb-1" />
+                ) : (
+                  <h4 className="text-[20px] font-semibold">
+                    {card.format ? card.format(card.value) : card.value.toLocaleString()}
+                  </h4>
+                )}
+                <p className="text-[12px] font-medium text-on-surface-variant uppercase tracking-wider">
+                  {card.label}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* Transaction Feed + Project Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
         {/* Transaction Feed */}
-        <div className="col-span-12 lg:col-span-7 bg-white rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-stack-lg overflow-hidden">
+        <div className="lg:col-span-7 bg-white rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-stack-lg overflow-hidden">
           <div className="flex justify-between items-center mb-stack-lg">
             <h3 className="text-[20px] font-semibold">
               {t("impact.feedTitle")}
@@ -298,7 +465,7 @@ export default function ImpactDashboard() {
         </div>
 
         {/* Project Status Panel */}
-        <div className="col-span-12 lg:col-span-5 bg-primary-container rounded-xl p-stack-lg flex flex-col justify-between shadow-lg relative overflow-hidden">
+        <div className="lg:col-span-5 bg-primary-container rounded-xl p-stack-lg flex flex-col justify-between shadow-lg relative overflow-hidden">
           <div className="relative z-10">
             <h3 className="text-[20px] font-semibold text-white mb-4">
               {t("impact.auditTitle")}
@@ -322,33 +489,6 @@ export default function ImpactDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Stats Cards */}
-      <section className="mt-stack-xl grid grid-cols-1 md:grid-cols-2 gap-gutter">
-        {statCards.map((card, i) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={i}
-              className="bg-surface-container-low p-stack-lg rounded-xl flex items-center gap-stack-md"
-            >
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-secondary">
-                <Icon size={24} />
-              </div>
-              <div>
-                {card.value === null ? (
-                  <div className="h-6 w-16 bg-surface-container-high rounded animate-pulse mb-1" />
-                ) : (
-                  <h4 className="text-[20px] font-semibold">{card.value}</h4>
-                )}
-                <p className="text-[12px] font-medium text-on-surface-variant uppercase tracking-wider">
-                  {card.label}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </section>
     </main>
   );
 }
